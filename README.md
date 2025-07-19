@@ -10,8 +10,8 @@ A Python FastAPI application connecting to PostgreSQL
 python -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
-python3 main.py
-uvicorn main:app --reload # or this
+python3 api.main.py
+uvicorn api.main:app --reload # or this
 deactivate
 ```
 

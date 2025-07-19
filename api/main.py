@@ -1,11 +1,16 @@
 from fastapi import FastAPI
 import uvicorn
+from api.config.logging import setup_logging, get_logger
+
+setup_logging()
+logger = get_logger(__name__)
 
 app = FastAPI()
 
 
 @app.get("/")
 async def up():
+    logger.info("Root endpoint called")
     return "Up!"
 
 
