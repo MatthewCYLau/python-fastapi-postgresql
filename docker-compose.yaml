@@ -1,0 +1,9 @@
+version: "3.8"
+
+services:
+  python-fastapi-postgresql:
+    build: .
+    image: python-fastapi-postgresql
+    container_name: python-fastapi-postgresql
+    ports:
+      - "8000:8000"
