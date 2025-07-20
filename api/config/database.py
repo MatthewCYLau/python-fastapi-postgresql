@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
 postgres_username = "db_user"
-postgres_password = os.getenv("DB_PASSWORD", "localhost")
+postgres_password = os.getenv("DB_PASSWORD")
 db_address = os.getenv("DB_HOST", "localhost")
 db_port = "5432"
 db_name = "python_fastapi"
