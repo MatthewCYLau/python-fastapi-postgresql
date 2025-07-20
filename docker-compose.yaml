@@ -7,3 +7,11 @@ services:
     container_name: python-fastapi-postgresql
     ports:
       - "8000:8000"
+  # db:
+  #   image: postgres:15
+  #   ports:
+  #     - "5432:5432"
+  #   environment:
+  #     - POSTGRES_DB=python_fastapi
+  #     - POSTGRES_USER=db_user
+  #     - POSTGRES_PASSWORD=password
