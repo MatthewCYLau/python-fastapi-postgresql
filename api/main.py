@@ -1,13 +1,21 @@
 from dotenv import load_dotenv
-from fastapi import FastAPI
-from api.config.logging import setup_logging, get_logger
 
 load_dotenv(".env")
+
+from fastapi import FastAPI
+from api.config.logging import setup_logging, get_logger
+from api.user.views import router as user_router
+from api.config.database import Base, engine
+
 
 setup_logging()
 logger = get_logger(__name__)
 
 app = FastAPI()
+
+Base.metadata.create_all(bind=engine)
+
+app.include_router(user_router)
 
 
 @app.get("/")

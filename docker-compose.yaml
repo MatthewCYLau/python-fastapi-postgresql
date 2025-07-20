@@ -1,17 +1,22 @@
 version: "3.8"
 
 services:
-  python-fastapi-postgresql:
-    build: .
-    image: python-fastapi-postgresql
-    container_name: python-fastapi-postgresql
+  db:
+    image: postgres:15
     ports:
-      - "8000:8000"
-  # db:
-  #   image: postgres:15
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=python_fastapi
+      - POSTGRES_USER=db_user
+      - POSTGRES_PASSWORD=password
+  # python-fastapi-postgresql:
+  #   build: .
+  #   image: python-fastapi-postgresql
+  #   container_name: python-fastapi-postgresql
   #   ports:
-  #     - "5432:5432"
+  #     - "8000:8000"
+  #   env_file: ".env"
   #   environment:
-  #     - POSTGRES_DB=python_fastapi
-  #     - POSTGRES_USER=db_user
-  #     - POSTGRES_PASSWORD=password
+  #     - DB_HOST=db
+  #   depends_on:
+  #     - db
