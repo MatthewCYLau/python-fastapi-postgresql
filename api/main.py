@@ -1,4 +1,5 @@
 from dotenv import load_dotenv
+import os
 
 load_dotenv(".env")
 
@@ -13,7 +14,8 @@ logger = get_logger(__name__)
 
 app = FastAPI()
 
-Base.metadata.create_all(bind=engine)
+if os.environ.get("DB_HOST"):
+    Base.metadata.create_all(bind=engine)
 
 app.include_router(user_router)
 
