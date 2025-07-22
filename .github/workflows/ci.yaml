@@ -37,6 +37,7 @@ jobs:
       - name: Run unit tests
         run: |
           python -m pytest tests
+          python -m pytest --cov=api
   setup-build-push:
     needs: test
     name: Setup, Build, and Push
