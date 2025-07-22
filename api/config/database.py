@@ -5,7 +5,7 @@ from sqlalchemy.orm import sessionmaker
 
 postgres_username = "db_user"
 postgres_password = os.getenv("DB_PASSWORD")
-db_address = os.getenv("DB_HOST", "localhost")
+db_address = os.getenv("DB_HOST")
 db_port = "5432"
 db_name = "python_fastapi"
 

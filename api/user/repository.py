@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from api.config.exception import AlreadyExistsException
 from api.config.logging import get_logger
 from api.user.models import User
 
@@ -15,7 +16,7 @@ class UserRepository:
 
         existing_user = self.get_by_email(user_data.email)
         if existing_user:
-            raise ValueError("Email already registered")
+            raise AlreadyExistsException("Email already registered")
 
         user = User(email=user_data.email)
         self.session.add(user)
