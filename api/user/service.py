@@ -17,3 +17,7 @@ class UserService:
     def get_all_users(self) -> list[UserResponse]:
         users = self.repository.get_all()
         return [UserResponse.model_validate(user) for user in users]
+
+    def get_user_by_id(self, user_id: int) -> UserResponse:
+        user = self.repository.get_by_id(user_id)
+        return UserResponse.model_validate(user)

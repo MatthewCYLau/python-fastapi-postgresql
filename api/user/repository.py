@@ -1,5 +1,5 @@
 from sqlalchemy import select
-from api.config.exception import AlreadyExistsException
+from api.config.exception import AlreadyExistsException, NotFoundException
 from api.config.logging import get_logger
 from api.user.models import User
 
@@ -24,6 +24,14 @@ class UserRepository:
         self.session.refresh(user)
 
         logger.info(f"Created user: {user.email}")
+        return user
+
+    def get_by_id(self, user_id: str) -> User | None:
+        query = select(User).where(User.id == user_id)
+        result = self.session.execute(query)
+        user = result.scalar_one_or_none()
+        if not user:
+            raise NotFoundException(f"User with id {user_id} not found")
         return user
 
     def get_by_email(self, email: str) -> User | None:

@@ -1,23 +1,31 @@
+import uuid
 from fastapi import APIRouter, Depends, status
+from sqlalchemy.orm import Session
 
 from api.config.database import get_session
 from api.config.logging import get_logger
 from api.user.schemas import UserBase, UserResponse
 from api.user.service import UserService
+from api.user.repository import UserRepository
 
 logger = get_logger(__name__)
 
-router = APIRouter(prefix="/api/v1", tags=["users"])
+router = APIRouter(prefix="/api/v1/users", tags=["users"])
 
 
-@router.post("/users", status_code=status.HTTP_201_CREATED)
+def get_user_service(session: Session = Depends(get_session)) -> UserService:
+    repository = UserRepository(session)
+    return UserService(repository)
+
+
+@router.post("/", status_code=status.HTTP_201_CREATED)
 def create_user(user_data: UserBase, session=Depends(get_session)):
     """Register a new user."""
     logger.info(f"Registering user: {user_data.email}")
     return UserService(session).create_user(user_data)
 
 
-@router.get("/users", response_model=list[UserResponse])
+@router.get("/", response_model=list[UserResponse])
 async def get_all_users(
     session=Depends(get_session),
 ) -> list[UserResponse]:
@@ -29,4 +37,19 @@ async def get_all_users(
         return users
     except Exception as e:
         logger.error(f"Failed to fetch users: {str(e)}")
+        raise
+
+
+@router.get("/{user_id}", response_model=UserResponse)
+def get_user_by_id(
+    user_id: uuid.UUID,
+    session=Depends(get_session),
+) -> UserResponse:
+    logger.info(f"Getting user {user_id}")
+    try:
+        user = UserService(session).get_user_by_id(user_id)
+        logger.info(f"Retrieved user {user_id}")
+        return user
+    except Exception as e:
+        logger.error(f"Failed to fetch user {user_id}: {e}")
         raise
