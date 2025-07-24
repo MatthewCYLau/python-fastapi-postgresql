@@ -53,3 +53,9 @@ def get_user_by_id(
     except Exception as e:
         logger.error(f"Failed to fetch user {user_id}: {e}")
         raise
+
+
+@router.delete("/{user_id}", status_code=status.HTTP_204_NO_CONTENT)
+def create_user(user_id: uuid.UUID, session=Depends(get_session)):
+    logger.info(f"Deleting user: {user_id}")
+    UserService(session).delete_user_by_id(user_id)

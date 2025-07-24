@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import select, delete
 from api.config.exception import AlreadyExistsException, NotFoundException
 from api.config.logging import get_logger
 from api.user.models import User
@@ -43,3 +43,14 @@ class UserRepository:
         query = select(User)
         result = self.session.execute(query)
         return list(result.scalars().all())
+
+    def delete_user_by_id(self, user_id: str) -> None:
+
+        query = delete(User).where(User.id == user_id)
+        result = self.session.execute(query)
+
+        if result.rowcount == 0:
+            raise NotFoundException(f"User with id {user_id} not found")
+
+        self.session.commit()
+        logger.info(f"Deleted user with id {user_id}")

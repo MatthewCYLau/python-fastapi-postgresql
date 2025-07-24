@@ -21,3 +21,6 @@ class UserService:
     def get_user_by_id(self, user_id: int) -> UserResponse:
         user = self.repository.get_by_id(user_id)
         return UserResponse.model_validate(user)
+
+    def delete_user_by_id(self, user_id: str) -> None:
+        self.repository.delete_user_by_id(user_id)
