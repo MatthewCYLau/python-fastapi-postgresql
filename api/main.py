@@ -7,6 +7,7 @@ from fastapi import FastAPI
 from api.config.logging import setup_logging, get_logger
 from api.user.views import router as user_router
 from api.product.views import router as product_router
+from api.order.views import router as order_router
 from api.config.database import Base, engine
 
 
@@ -20,6 +21,7 @@ if os.environ.get("DB_HOST"):
 
 app.include_router(user_router)
 app.include_router(product_router)
+app.include_router(order_router)
 
 
 @app.get("/")

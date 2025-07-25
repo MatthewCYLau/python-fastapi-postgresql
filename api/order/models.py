@@ -13,8 +13,10 @@ class Order(Base):
 
     __tablename__ = "orders"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+    )
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
-    parent_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
+    user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship()

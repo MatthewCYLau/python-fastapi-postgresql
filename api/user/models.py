@@ -1,6 +1,6 @@
 from sqlalchemy import TIMESTAMP, Column, String, text
 from typing import List
-from sqlalchemy.orm import Mapped, relationship
+from sqlalchemy.orm import Mapped, relationship, mapped_column
 from sqlalchemy.dialects.postgresql import UUID
 from api.config.database import Base
 import uuid
@@ -13,7 +13,9 @@ class User(Base):
 
     __tablename__ = "users"
 
-    id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True)
+    id: Mapped[UUID] = mapped_column(
+        UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
+    )
     email = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
     orders: Mapped[List["Order"]] = relationship()
