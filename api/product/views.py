@@ -20,20 +20,22 @@ def get_product_service(session: Session = Depends(get_session)) -> ProductServi
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_product(product_data: ProductBase, session=Depends(get_session)):
+def create_product(
+    product_data: ProductBase, service: ProductService = Depends(get_product_service)
+):
     """Register a new product."""
     logger.info(f"Registering product: {product_data.name}")
-    return ProductService(session).create_product(product_data)
+    return service.create_product(product_data)
 
 
 @router.get("/", response_model=list[ProductResponse])
 def get_all_products(
-    session=Depends(get_session),
+    service: ProductService = Depends(get_product_service),
 ) -> list[ProductResponse]:
     """Get all products."""
     logger.debug("Fetching all products")
     try:
-        products = ProductService(session).get_all_products()
+        products = service.get_all_products()
         logger.info(f"Retrieved {len(products)} products")
         return products
     except Exception as e:
@@ -44,11 +46,11 @@ def get_all_products(
 @router.get("/{product_id}", response_model=ProductResponse)
 def get_product_by_id(
     product_id: uuid.UUID,
-    session=Depends(get_session),
+    service: ProductService = Depends(get_product_service),
 ) -> ProductResponse:
     logger.info(f"Getting product {product_id}")
     try:
-        product = ProductService(session).get_product_by_id(product_id)
+        product = service.get_product_by_id(product_id)
         logger.info(f"Retrieved product {product_id}")
         return product
     except Exception as e:
@@ -60,12 +62,12 @@ def get_product_by_id(
 def update_product_by_id(
     product_id: uuid.UUID,
     product_data: ProductBase,
-    session=Depends(get_session),
+    service: ProductService = Depends(get_product_service),
 ) -> ProductResponse:
     """Update product by ID."""
     logger.debug(f"Updating product {product_id}")
     try:
-        product = ProductService(session).update_product_by_id(product_id, product_data)
+        product = service.update_product_by_id(product_id, product_data)
         logger.info(f"Updated product {product_id}")
         return product
     except Exception as e:

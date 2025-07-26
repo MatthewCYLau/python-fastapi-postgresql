@@ -7,9 +7,8 @@ logger = get_logger(__name__)
 
 
 class ProductService:
-    def __init__(self, session):
-        self.session = session
-        self.repository = ProductRepository(session)
+    def __init__(self, repository: ProductRepository):
+        self.repository = repository
 
     def create_product(self, product_data: ProductBase) -> Product:
         return self.repository.create(product_data)
