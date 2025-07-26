@@ -46,7 +46,9 @@ def test_get_users(mocked_repository):
 
 
 def test_create_user(mocked_repository):
-    response = client.post("/api/v1/users", json={"email": "one@example.com"})
+    response = client.post(
+        "/api/v1/users", json={"email": "one@example.com", "password": "testpassword"}
+    )
     assert response.status_code == 201
 
 
