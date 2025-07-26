@@ -29,7 +29,7 @@ def create_user(user_data: UserBase, session=Depends(get_session)):
 async def get_all_users(
     session=Depends(get_session),
 ) -> list[UserResponse]:
-    """Get all heroes."""
+    """Get all users."""
     logger.debug("Fetching all users")
     try:
         users = UserService(session).get_all_users()

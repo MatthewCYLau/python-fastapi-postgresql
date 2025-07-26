@@ -1,4 +1,5 @@
-from api.config.exception import AlreadyExistsException
+from sqlalchemy import select
+from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.product.models import Product
 
@@ -20,3 +21,16 @@ class ProductRepository:
 
         logger.info(f"Created product: {product.name}")
         return product
+
+    def get_by_id(self, product_id: str) -> Product | None:
+        query = select(Product).where(Product.id == product_id)
+        result = self.session.execute(query)
+        product = result.scalar_one_or_none()
+        if not product:
+            raise NotFoundException(f"Product with id {product_id} not found")
+        return product
+
+    def get_all(self) -> list[Product]:
+        query = select(Product)
+        result = self.session.execute(query)
+        return list(result.scalars().all())
