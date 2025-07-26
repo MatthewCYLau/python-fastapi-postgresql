@@ -21,3 +21,8 @@ class ProductService:
     def get_product_by_id(self, product_id: int) -> ProductResponse:
         product = self.repository.get_by_id(product_id)
         return ProductResponse.model_validate(product)
+
+    def update_product_by_id(
+        self, product_id: str, product_data: ProductBase
+    ) -> Product:
+        return self.repository.update_by_id(product_id, product_data)

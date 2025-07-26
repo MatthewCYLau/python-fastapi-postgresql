@@ -27,7 +27,7 @@ def create_product(product_data: ProductBase, session=Depends(get_session)):
 
 
 @router.get("/", response_model=list[ProductResponse])
-async def get_all_products(
+def get_all_products(
     session=Depends(get_session),
 ) -> list[ProductResponse]:
     """Get all products."""
@@ -38,4 +38,36 @@ async def get_all_products(
         return products
     except Exception as e:
         logger.error(f"Failed to fetch products: {str(e)}")
+        raise
+
+
+@router.get("/{product_id}", response_model=ProductResponse)
+def get_product_by_id(
+    product_id: uuid.UUID,
+    session=Depends(get_session),
+) -> ProductResponse:
+    logger.info(f"Getting product {product_id}")
+    try:
+        product = ProductService(session).get_product_by_id(product_id)
+        logger.info(f"Retrieved product {product_id}")
+        return product
+    except Exception as e:
+        logger.error(f"Failed to fetch product {product_id}: {e}")
+        raise
+
+
+@router.patch("/{product_id}", response_model=ProductResponse)
+def update_product_by_id(
+    product_id: uuid.UUID,
+    product_data: ProductBase,
+    session=Depends(get_session),
+) -> ProductResponse:
+    """Update product by ID."""
+    logger.debug(f"Updating product {product_id}")
+    try:
+        product = ProductService(session).update_product_by_id(product_id, product_data)
+        logger.info(f"Updated product {product_id}")
+        return product
+    except Exception as e:
+        logger.error(f"Failed to update product {product_id}: {str(e)}")
         raise
