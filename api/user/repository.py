@@ -1,6 +1,7 @@
 from sqlalchemy import select, delete
 from api.config.exception import AlreadyExistsException, NotFoundException
 from api.config.logging import get_logger
+from api.config.security import get_password_hash
 from api.user.models import User
 
 logger = get_logger(__name__)
@@ -18,7 +19,9 @@ class UserRepository:
         if existing_user:
             raise AlreadyExistsException("Email already registered")
 
-        user = User(email=user_data.email)
+        user = User(
+            email=user_data.email, hashed_password=get_password_hash(user_data.password)
+        )
         self.session.add(user)
         self.session.commit()
         self.session.refresh(user)

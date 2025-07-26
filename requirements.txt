@@ -10,3 +10,5 @@ pydantic[email]
 pytest-mock
 pytest-cov
 coverage
+pyjwt
+passlib[bcrypt]

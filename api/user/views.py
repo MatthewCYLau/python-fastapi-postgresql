@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from api.config.database import get_session
 from api.config.logging import get_logger
-from api.user.schemas import UserBase, UserResponse
+from api.user.schemas import UserCreate, UserResponse
 from api.user.service import UserService
 from api.user.repository import UserRepository
 
@@ -19,7 +19,7 @@ def get_user_service(session: Session = Depends(get_session)) -> UserService:
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_user(user_data: UserBase, session=Depends(get_session)):
+def create_user(user_data: UserCreate, session=Depends(get_session)) -> UserResponse:
     """Register a new user."""
     logger.info(f"Registering user: {user_data.email}")
     return UserService(session).create_user(user_data)
