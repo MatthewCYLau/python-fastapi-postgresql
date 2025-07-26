@@ -18,7 +18,7 @@ def get_user_service(session: Session = Depends(get_session)) -> UserService:
     return UserService(repository)
 
 
-@router.post("/", status_code=status.HTTP_201_CREATED)
+@router.post("/", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 def create_user(user_data: UserCreate, session=Depends(get_session)) -> UserResponse:
     """Register a new user."""
     logger.info(f"Registering user: {user_data.email}")

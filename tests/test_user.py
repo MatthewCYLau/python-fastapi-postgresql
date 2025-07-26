@@ -10,33 +10,21 @@ client = TestClient(app)
 
 @pytest.fixture()
 def mocked_repository(mocker):
+    mock_user_data = {
+        "id": uuid.uuid4(),
+        "email": "hello@example.com",
+        "created_at": datetime.now(),
+        "password": "testpassword",
+    }
     mocker.patch(
         "api.user.repository.UserRepository.get_all",
-        return_value=[
-            {
-                "id": uuid.uuid4(),
-                "email": "hello@example.com",
-                "created_at": datetime.now(),
-            }
-        ],
+        return_value=[mock_user_data],
     )
     mocker.patch(
-        "api.user.repository.UserRepository.create",
-        return_value=[
-            {
-                "id": uuid.uuid4(),
-                "email": "hello@example.com",
-                "created_at": datetime.now(),
-            }
-        ],
+        "api.user.repository.UserRepository.create", return_value=mock_user_data
     )
     mocker.patch(
-        "api.user.repository.UserRepository.get_by_id",
-        return_value={
-            "id": uuid.uuid4(),
-            "email": "hello@example.com",
-            "created_at": datetime.now(),
-        },
+        "api.user.repository.UserRepository.get_by_id", return_value=mock_user_data
     )
 
 
