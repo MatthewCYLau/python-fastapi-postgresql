@@ -13,3 +13,10 @@ class AlreadyExistsException(HTTPException):
 
     def __init__(self, detail: str = "Resource already exists"):
         super().__init__(status_code=status.HTTP_409_CONFLICT, detail=detail)
+
+
+class UnauthorizedException(HTTPException):
+    """Base exception for unauthorized access errors."""
+
+    def __init__(self, detail: str = "Unauthorized access"):
+        super().__init__(status_code=status.HTTP_401_UNAUTHORIZED, detail=detail)

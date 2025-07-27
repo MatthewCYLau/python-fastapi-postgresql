@@ -1,4 +1,7 @@
+from api.auth.schemas import LoginData, Token
+from api.config.exception import UnauthorizedException
 from api.config.logging import get_logger
+from api.config.security import verify_password
 from api.user.models import User
 from api.user.repository import UserRepository
 from api.user.schemas import UserCreate, UserResponse
@@ -24,3 +27,17 @@ class UserService:
 
     def delete_user_by_id(self, user_id: str) -> None:
         self.repository.delete_user_by_id(user_id)
+
+    def authenticate(self, login_data: LoginData) -> Token:
+        """Authenticate user and return token."""
+        user = self.repository.get_by_email(login_data.email)
+
+        if not user or not verify_password(
+            login_data.password, str(user.hashed_password)
+        ):
+            raise UnauthorizedException(detail="Incorrect email or password")
+
+        access_token = Token(access_token="")
+
+        logger.info(f"User authenticated: {user.email}")
+        return access_token
