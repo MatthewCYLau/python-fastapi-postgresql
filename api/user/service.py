@@ -1,7 +1,9 @@
+import os
+from datetime import timedelta
 from api.auth.schemas import LoginData, Token
 from api.config.exception import UnauthorizedException
 from api.config.logging import get_logger
-from api.config.security import verify_password
+from api.config.security import create_access_token, verify_password
 from api.user.models import User
 from api.user.repository import UserRepository
 from api.user.schemas import UserCreate, UserResponse
@@ -37,7 +39,12 @@ class UserService:
         ):
             raise UnauthorizedException(detail="Incorrect email or password")
 
-        access_token = Token(access_token="")
+        access_token = create_access_token(
+            data={"sub": str(user.id)},
+            expires_delta=timedelta(
+                minutes=os.environ.get("JWT_EXPIRATION_MINUTES", 15)
+            ),
+        )
 
         logger.info(f"User authenticated: {user.email}")
-        return access_token
+        return Token(access_token=access_token)
