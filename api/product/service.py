@@ -25,3 +25,6 @@ class ProductService:
         self, product_id: str, product_data: ProductBase
     ) -> Product:
         return self.repository.update_by_id(product_id, product_data)
+
+    def delete_product_by_id(self, product_id: str) -> None:
+        self.repository.delete_product_by_id(product_id)

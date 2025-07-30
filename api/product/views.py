@@ -73,3 +73,12 @@ def update_product_by_id(
     except Exception as e:
         logger.error(f"Failed to update product {product_id}: {str(e)}")
         raise
+
+
+@router.delete("/{product_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_product(
+    product_id: uuid.UUID,
+    service: ProductService = Depends(get_product_service),
+):
+    logger.info(f"Deleting product: {product_id}")
+    service.delete_product_by_id(product_id)

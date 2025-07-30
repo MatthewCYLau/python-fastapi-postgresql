@@ -1,4 +1,4 @@
-from sqlalchemy import select, update
+from sqlalchemy import delete, select, update
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.product.models import Product
@@ -61,3 +61,14 @@ class ProductRepository:
 
         self.session.commit()
         return self.get_by_id(product_id)
+
+    def delete_product_by_id(self, product_id: str) -> None:
+
+        query = delete(Product).where(Product.id == product_id)
+        result = self.session.execute(query)
+
+        if result.rowcount == 0:
+            raise NotFoundException(f"Product with id {product_id} not found")
+
+        self.session.commit()
+        logger.info(f"Deleted product with id {product_id}")
