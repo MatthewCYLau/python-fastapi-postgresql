@@ -4,8 +4,8 @@ import uuid
 
 
 class OrderBase(BaseModel):
-    user_id: str
-    product_id: str
+    user_id: uuid.UUID
+    product_id: uuid.UUID
 
 
 class OrderResponse(OrderBase):

@@ -1,3 +1,5 @@
+from sqlalchemy import select
+from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.order.models import Order
 
@@ -19,3 +21,16 @@ class OrderRepository:
 
         logger.info(f"Created order.")
         return order
+
+    def get_by_id(self, order_id: str) -> Order | None:
+        query = select(Order).where(Order.id == order_id)
+        result = self.session.execute(query)
+        order = result.scalar_one_or_none()
+        if not order:
+            raise NotFoundException(f"Order with id {order_id} not found")
+        return order
+
+    def get_all(self) -> list[Order]:
+        query = select(Order)
+        result = self.session.execute(query)
+        return list(result.scalars().all())
