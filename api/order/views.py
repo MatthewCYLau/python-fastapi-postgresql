@@ -56,3 +56,12 @@ def get_order_by_id(
     except Exception as e:
         logger.error(f"Failed to fetch order {order_id}: {e}")
         raise
+
+
+@router.delete("/{order_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_order(
+    order_id: uuid.UUID,
+    session=Depends(get_session),
+):
+    logger.info(f"Deleting order: {order_id}")
+    OrderService(session).delete_order_by_id(order_id)

@@ -1,4 +1,4 @@
-from sqlalchemy import select
+from sqlalchemy import delete, select
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.order.models import Order
@@ -34,3 +34,14 @@ class OrderRepository:
         query = select(Order).join(Order.product)
         result = self.session.execute(query)
         return list(result.scalars().all())
+
+    def delete_order_by_id(self, order_id: str) -> None:
+
+        query = delete(Order).where(Order.id == order_id)
+        result = self.session.execute(query)
+
+        if result.rowcount == 0:
+            raise NotFoundException(f"Order with id {order_id} not found")
+
+        self.session.commit()
+        logger.info(f"Deleted order with id {order_id}")

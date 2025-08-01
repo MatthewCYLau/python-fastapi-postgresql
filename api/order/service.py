@@ -21,3 +21,6 @@ class OrderService:
     def get_order_by_id(self, order_id: int) -> OrderResponse:
         order = self.repository.get_by_id(order_id)
         return OrderResponse.model_validate(order)
+
+    def delete_order_by_id(self, order_id: str) -> None:
+        self.repository.delete_order_by_id(order_id)
