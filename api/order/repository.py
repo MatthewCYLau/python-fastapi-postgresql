@@ -23,7 +23,7 @@ class OrderRepository:
         return order
 
     def get_by_id(self, order_id: str) -> Order | None:
-        query = select(Order).where(Order.id == order_id)
+        query = select(Order).where(Order.id == order_id).join(Order.product)
         result = self.session.execute(query)
         order = result.scalar_one_or_none()
         if not order:
@@ -31,6 +31,6 @@ class OrderRepository:
         return order
 
     def get_all(self) -> list[Order]:
-        query = select(Order)
+        query = select(Order).join(Order.product)
         result = self.session.execute(query)
         return list(result.scalars().all())
