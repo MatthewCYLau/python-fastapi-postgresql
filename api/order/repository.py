@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import and_, delete, select
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.order.models import Order
@@ -30,8 +30,18 @@ class OrderRepository:
             raise NotFoundException(f"Order with id {order_id} not found")
         return order
 
-    def get_all(self) -> list[Order]:
-        query = select(Order).join(Order.product)
+    def get_all(self, startDate, endDate) -> list[Order]:
+
+        if startDate and endDate:
+            query = (
+                select(Order)
+                .filter(
+                    and_(Order.created_at <= endDate, Order.created_at >= startDate)
+                )
+                .join(Order.product)
+            )
+        else:
+            query = select(Order).join(Order.product)
         result = self.session.execute(query)
         return list(result.scalars().all())
 

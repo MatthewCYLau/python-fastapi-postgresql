@@ -3,10 +3,12 @@ from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from api.config.database import get_session
+from api.config.exception import BadRequestException
 from api.config.logging import get_logger
 from api.order.repository import OrderRepository
 from api.order.schemas import OrderBase, OrderResponse
 from api.order.service import OrderService
+from api.utils.date_util import validate_date_string
 
 logger = get_logger(__name__)
 
@@ -30,12 +32,19 @@ def create_order(order_data: OrderBase, session=Depends(get_session)):
 
 @router.get("/", response_model=list[OrderResponse])
 async def get_all_orders(
-    session=Depends(get_session),
+    session=Depends(get_session), startDate: str = None, endDate: str = None
 ) -> list[OrderResponse]:
     """Get all orders."""
     logger.debug("Fetching all orders")
+
+    dates_input = [startDate, endDate]
+    if all(dates_input) and not all([validate_date_string(i) for i in dates_input]):
+        raise BadRequestException(
+            detail="Invalid date input. Must be in format YYYY-MM-DD"
+        )
+
     try:
-        orders = OrderService(session).get_all_orders()
+        orders = OrderService(session).get_all_orders(startDate, endDate)
         logger.info(f"Retrieved {len(orders)} orders")
         return orders
     except Exception as e:

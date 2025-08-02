@@ -26,8 +26,8 @@ class OrderService:
         if user and product:
             return self.repository.create(order_data)
 
-    def get_all_orders(self) -> list[OrderResponse]:
-        orders = self.repository.get_all()
+    def get_all_orders(self, startDate, endDate) -> list[OrderResponse]:
+        orders = self.repository.get_all(startDate, endDate)
         return [OrderResponse.model_validate(order) for order in orders]
 
     def get_order_by_id(self, order_id: int) -> OrderResponse:
