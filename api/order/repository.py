@@ -55,3 +55,8 @@ class OrderRepository:
 
         self.session.commit()
         logger.info(f"Deleted order with id {order_id}")
+
+    def get_orders_by_user_id(self, user_id) -> list[Order]:
+        query = select(Order).where(Order.user_id == user_id).join(Order.product)
+        result = self.session.execute(query)
+        return list(result.scalars().all())

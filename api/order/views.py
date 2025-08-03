@@ -1,3 +1,4 @@
+from typing import Annotated
 import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -8,7 +9,10 @@ from api.config.logging import get_logger
 from api.order.repository import OrderRepository
 from api.order.schemas import OrderBase, OrderResponse
 from api.order.service import OrderService
+from api.user.schemas import UserResponse
 from api.utils.date_util import validate_date_string
+from api.config.security import get_current_user
+
 
 logger = get_logger(__name__)
 
@@ -49,6 +53,21 @@ async def get_all_orders(
         return orders
     except Exception as e:
         logger.error(f"Failed to fetch orders: {str(e)}")
+        raise
+
+
+@router.get("/me", response_model=list[OrderResponse])
+def get_current_user_orders(
+    current_user: Annotated[UserResponse, Depends(get_current_user)],
+    session=Depends(get_session),
+) -> OrderResponse:
+    user_id = current_user.id
+    logger.info(f"Getting orders by user ID {user_id}")
+    try:
+        orders = OrderService(session).get_orders_by_user_id(user_id)
+        return orders
+    except Exception as e:
+        logger.error(f"Failed to fetch orders by current user ID {e}")
         raise
 
 

@@ -36,3 +36,7 @@ class OrderService:
 
     def delete_order_by_id(self, order_id: str) -> None:
         self.repository.delete_order_by_id(order_id)
+
+    def get_orders_by_user_id(self, user_id) -> list[OrderResponse]:
+        orders = self.repository.get_orders_by_user_id(user_id)
+        return [OrderResponse.model_validate(order) for order in orders]
