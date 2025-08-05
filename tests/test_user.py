@@ -1,6 +1,6 @@
 import pytest
 import uuid
-from datetime import datetime
+from datetime import datetime, date
 from fastapi.testclient import TestClient
 
 from api.main import app
@@ -15,6 +15,8 @@ def mocked_repository(mocker):
         "email": "hello@example.com",
         "created_at": datetime.now(),
         "password": "testpassword",
+        "date_of_birth": date(1990, 12, 4),
+        "email_verified": False,
     }
     mocker.patch(
         "api.user.repository.UserRepository.get_all",
@@ -35,7 +37,12 @@ def test_get_users(mocked_repository):
 
 def test_create_user(mocked_repository):
     response = client.post(
-        "/api/v1/users", json={"email": "one@example.com", "password": "testpassword"}
+        "/api/v1/users",
+        json={
+            "email": "one@example.com",
+            "password": "testpassword",
+            "dateOfBirth": "1990-04-23",
+        },
     )
     assert response.status_code == 201
 
