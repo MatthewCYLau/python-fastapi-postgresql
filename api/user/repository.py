@@ -20,7 +20,9 @@ class UserRepository:
             raise AlreadyExistsException("Email already registered")
 
         user = User(
-            email=user_data.email, hashed_password=get_password_hash(user_data.password)
+            email=user_data.email,
+            hashed_password=get_password_hash(user_data.password),
+            date_of_birth=user_data.dateOfBirth,
         )
         self.session.add(user)
         self.session.commit()

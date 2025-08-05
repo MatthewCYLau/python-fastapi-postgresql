@@ -11,6 +11,7 @@ class UserCreate(UserBase):
     """User creation schema."""
 
     password: str
+    dateOfBirth: str
 
 
 class UserResponse(UserBase):
@@ -19,6 +20,8 @@ class UserResponse(UserBase):
     model_config = ConfigDict(from_attributes=True)
     id: uuid.UUID
     created_at: datetime
+    date_of_birth: datetime
+    email_verified: bool
 
 
 class Token(BaseModel):
