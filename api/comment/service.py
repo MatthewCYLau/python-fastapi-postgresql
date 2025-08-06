@@ -9,3 +9,6 @@ class CommentService:
 
     def create_comment(self, comment_data: CommentBase) -> Comment:
         return self.repository.create(comment_data)
+
+    def delete_comment_by_id(self, comment_id: str) -> None:
+        self.repository.delete_comment_by_id(comment_id)

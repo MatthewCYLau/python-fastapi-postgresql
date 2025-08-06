@@ -1,3 +1,4 @@
+import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from api.comment.repository import CommentRepository
@@ -24,3 +25,12 @@ def create_comment(
     """Register a new comment."""
     logger.info(f"Registering comment for product ID {comment_data.product_id}")
     return service.create_comment(comment_data)
+
+
+@router.delete("/{comment_id}", status_code=status.HTTP_204_NO_CONTENT)
+def delete_comment(
+    comment_id: uuid.UUID,
+    service: CommentService = Depends(get_comment_service),
+):
+    logger.info(f"Deleting comment: {comment_id}")
+    service.delete_comment_by_id(comment_id)
