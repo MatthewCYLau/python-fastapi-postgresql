@@ -1,7 +1,7 @@
 from api.config.logging import get_logger
 from api.order.models import Order
 from api.order.repository import OrderRepository
-from api.order.schemas import OrderBase, OrderResponse
+from api.order.schemas import OrderBase, OrderResponse, OrdersCountResponse
 from api.product.repository import ProductRepository
 from api.product.service import ProductService
 from api.user.service import UserService
@@ -40,3 +40,9 @@ class OrderService:
     def get_orders_by_user_id(self, user_id) -> list[OrderResponse]:
         orders = self.repository.get_orders_by_user_id(user_id)
         return [OrderResponse.model_validate(order) for order in orders]
+
+    def get_orders_count_by_product_id(self, product_id: str) -> OrdersCountResponse:
+        count = self.repository.get_orders_count_by_product_id(product_id)
+        return OrdersCountResponse.model_validate(
+            {"count": count, "product_id": product_id}
+        )

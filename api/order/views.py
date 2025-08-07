@@ -1,4 +1,3 @@
-from typing import Annotated
 import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
@@ -7,11 +6,9 @@ from api.config.database import get_session
 from api.config.exception import BadRequestException
 from api.config.logging import get_logger
 from api.order.repository import OrderRepository
-from api.order.schemas import OrderBase, OrderResponse
+from api.order.schemas import OrderBase, OrderResponse, OrdersCountResponse
 from api.order.service import OrderService
-from api.user.schemas import UserResponse
 from api.utils.date_util import validate_date_string
-from api.config.security import get_current_user
 
 
 logger = get_logger(__name__)
@@ -56,18 +53,32 @@ async def get_all_orders(
         raise
 
 
-@router.get("/me", response_model=list[OrderResponse])
-def get_current_user_orders(
-    current_user: Annotated[UserResponse, Depends(get_current_user)],
+@router.get("/orders-count/{product_id}", response_model=OrdersCountResponse)
+def get_orders_count_by_product_id(
+    product_id: uuid.UUID,
+    session=Depends(get_session),
+) -> OrdersCountResponse:
+    logger.info(f"Getting orders count by product ID {product_id}")
+    try:
+        count = OrderService(session).get_orders_count_by_product_id(product_id)
+        return count
+    except Exception as e:
+        logger.error(f"Failed to fetch orders count product ID {e}")
+        raise
+
+
+@router.get("/{order_id}", response_model=OrderResponse)
+def get_order_by_id(
+    order_id: uuid.UUID,
     session=Depends(get_session),
 ) -> OrderResponse:
-    user_id = current_user.id
-    logger.info(f"Getting orders by user ID {user_id}")
+    logger.info(f"Getting order {order_id}")
     try:
-        orders = OrderService(session).get_orders_by_user_id(user_id)
-        return orders
+        order = OrderService(session).get_order_by_id(order_id)
+        logger.info(f"Retrieved order {order_id}")
+        return order
     except Exception as e:
-        logger.error(f"Failed to fetch orders by current user ID {e}")
+        logger.error(f"Failed to fetch order {order_id}: {e}")
         raise
 
 

@@ -14,3 +14,8 @@ class OrderResponse(OrderBase):
     id: uuid.UUID
     created_at: datetime
     product: ProductResponse
+
+
+class OrdersCountResponse(BaseModel):
+    count: int
+    product_id: uuid.UUID

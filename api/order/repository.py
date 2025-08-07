@@ -1,4 +1,4 @@
-from sqlalchemy import and_, delete, select
+from sqlalchemy import and_, delete, select, func
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.order.models import Order
@@ -60,3 +60,15 @@ class OrderRepository:
         query = select(Order).where(Order.user_id == user_id).join(Order.product)
         result = self.session.execute(query)
         return list(result.scalars().all())
+
+    def get_orders_count_by_product_id(self, product_id: str) -> int:
+        statement = (
+            select(func.count())
+            .select_from(Order)
+            .where(Order.product_id == product_id)
+        )
+        count: int = self.session.execute(statement).scalar()
+
+        if not count:
+            raise NotFoundException(f"Order with product id {product_id} not found")
+        return count
