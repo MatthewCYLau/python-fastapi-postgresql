@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select, update
+from sqlalchemy import delete, select, text, update
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.product.models import Product
@@ -35,6 +35,11 @@ class ProductRepository:
         query = select(Product)
         result = self.session.execute(query)
         return list(result.scalars().all())
+
+    def get_all_raw_sql(self, limit_count=10) -> list[Product]:
+        statement = text(f"SELECT * FROM products LIMIT {limit_count}")
+        result = self.session.execute(statement)
+        return list(result.all())
 
     def update_by_id(self, product_id: str, product_data: ProductBase) -> Product:
         """Update product by ID.

@@ -31,11 +31,12 @@ def create_product(
 @router.get("/", response_model=list[ProductResponse])
 def get_all_products(
     service: ProductService = Depends(get_product_service),
+    limit: int = None,
 ) -> list[ProductResponse]:
     """Get all products."""
     logger.debug("Fetching all products")
     try:
-        products = service.get_all_products()
+        products = service.get_all_products(limit)
         logger.info(f"Retrieved {len(products)} products")
         return products
     except Exception as e:

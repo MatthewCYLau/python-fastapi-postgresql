@@ -13,8 +13,11 @@ class ProductService:
     def create_product(self, product_data: ProductBase) -> Product:
         return self.repository.create(product_data)
 
-    def get_all_products(self) -> list[ProductResponse]:
-        products = self.repository.get_all()
+    def get_all_products(self, limit) -> list[ProductResponse]:
+        if limit:
+            products = self.repository.get_all_raw_sql(limit)
+        else:
+            products = self.repository.get_all()
         return [ProductResponse.model_validate(product) for product in products]
 
     def get_product_by_id(self, product_id: int) -> ProductResponse:
