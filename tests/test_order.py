@@ -14,6 +14,7 @@ def mocked_repository(mocker):
         "id": uuid.uuid4(),
         "created_at": datetime.now(),
         "name": "example",
+        "price": 1.23,
     }
     mock_order_data = {
         "id": uuid.uuid4(),
