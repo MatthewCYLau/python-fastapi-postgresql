@@ -1,5 +1,5 @@
 from typing import List
-from sqlalchemy import TIMESTAMP, Column, String, text
+from sqlalchemy import TIMESTAMP, Column, Numeric, String, text
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
@@ -19,3 +19,4 @@ class Product(Base):
     name = Column(String, unique=True, index=True, nullable=False)
     created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
     comments: Mapped[List["Comment"]] = relationship()
+    price = Column(Numeric, nullable=False)

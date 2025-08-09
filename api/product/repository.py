@@ -15,7 +15,7 @@ class ProductRepository:
 
     def create(self, product_data) -> Product:
 
-        product = Product(name=product_data.name)
+        product = Product(name=product_data.name, price=float(product_data.price))
         self.session.add(product)
         self.session.commit()
         self.session.refresh(product)

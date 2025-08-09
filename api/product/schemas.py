@@ -5,6 +5,7 @@ import uuid
 
 class ProductBase(BaseModel):
     name: str
+    price: float
 
 
 class ProductResponse(ProductBase):
