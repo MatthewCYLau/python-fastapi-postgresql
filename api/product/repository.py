@@ -37,8 +37,9 @@ class ProductRepository:
             raise NotFoundException(f"Product with id {product_id} not found")
         return product
 
-    def get_all(self) -> list[Product]:
-        query = select(Product)
+    def get_all(self, pageSize, currentPage) -> list[Product]:
+        offset = (currentPage - 1) * pageSize
+        query = select(Product).limit(pageSize).offset(offset)
         result = self.session.execute(query)
         return list(result.scalars().all())
 

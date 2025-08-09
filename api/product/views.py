@@ -32,11 +32,13 @@ def create_product(
 def get_all_products(
     service: ProductService = Depends(get_product_service),
     limit: int = None,
+    pageSize: int = 5,
+    currentPage: int = 1,
 ) -> list[ProductResponse]:
     """Get all products."""
     logger.debug("Fetching all products")
     try:
-        products = service.get_all_products(limit)
+        products = service.get_all_products(limit, pageSize, currentPage)
         logger.info(f"Retrieved {len(products)} products")
         return products
     except Exception as e:
