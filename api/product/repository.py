@@ -1,5 +1,5 @@
 from sqlalchemy import delete, select, text, update
-from api.config.exception import NotFoundException
+from api.config.exception import AlreadyExistsException, NotFoundException
 from api.config.logging import get_logger
 from api.product.models import Product
 from api.product.schemas import ProductBase
@@ -14,6 +14,12 @@ class ProductRepository:
         self.session = session
 
     def create(self, product_data) -> Product:
+
+        existing_prouduct = self.get_by_name(product_data.name)
+        if existing_prouduct:
+            raise AlreadyExistsException(
+                f"Product already registered - {product_data.name}"
+            )
 
         product = Product(name=product_data.name, price=float(product_data.price))
         self.session.add(product)
@@ -77,3 +83,8 @@ class ProductRepository:
 
         self.session.commit()
         logger.info(f"Deleted product with id {product_id}")
+
+    def get_by_name(self, product_name: str) -> Product | None:
+        query = select(Product).where(Product.name == product_name)
+        result = self.session.execute(query)
+        return result.scalar_one_or_none()
