@@ -1,4 +1,4 @@
-from sqlalchemy import TIMESTAMP, Column, text, ForeignKey
+from sqlalchemy import TIMESTAMP, Column, text, ForeignKey, Integer, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
@@ -20,3 +20,5 @@ class Order(Base):
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship()
+    quantity = Column(Integer, nullable=False)
+    total_cost = Column(Numeric, nullable=False)

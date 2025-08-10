@@ -7,6 +7,7 @@ from api.product.schemas import ProductResponse
 class OrderBase(BaseModel):
     user_id: uuid.UUID
     product_id: uuid.UUID
+    quantity: int
 
 
 class OrderResponse(OrderBase):
@@ -14,6 +15,7 @@ class OrderResponse(OrderBase):
     id: uuid.UUID
     created_at: datetime
     product: ProductResponse
+    total_cost: float
 
 
 class OrdersCountResponse(BaseModel):

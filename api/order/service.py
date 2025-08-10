@@ -24,7 +24,8 @@ class OrderService:
         product = product_service.get_product_by_id(order_data.product_id)
 
         if user and product:
-            return self.repository.create(order_data)
+            total_cost = order_data.quantity * product.price
+            return self.repository.create(order_data, total_cost)
 
     def get_all_orders(self, startDate, endDate) -> list[OrderResponse]:
         orders = self.repository.get_all(startDate, endDate)

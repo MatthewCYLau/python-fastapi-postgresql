@@ -12,9 +12,14 @@ class OrderRepository:
     def __init__(self, session):
         self.session = session
 
-    def create(self, order_data) -> Order:
+    def create(self, order_data, total_cost: float) -> Order:
 
-        order = Order(user_id=order_data.user_id, product_id=order_data.product_id)
+        order = Order(
+            user_id=order_data.user_id,
+            product_id=order_data.product_id,
+            quantity=order_data.quantity,
+            total_cost=total_cost,
+        )
         self.session.add(order)
         self.session.commit()
         self.session.refresh(order)
