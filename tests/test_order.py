@@ -14,13 +14,15 @@ def mocked_repository(mocker):
         "id": uuid.uuid4(),
         "created_at": datetime.now(),
         "name": "example",
-        "price": 1.23,
+        "price": 1.50,
     }
     mock_order_data = {
         "id": uuid.uuid4(),
         "user_id": uuid.uuid4(),
         "product_id": uuid.uuid4(),
         "created_at": datetime.now(),
+        "quantity": 2,
+        "total_cost": 3.0,
         "product": mock_product_response,
     }
     mocker.patch(
