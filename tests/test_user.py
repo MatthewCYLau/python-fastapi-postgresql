@@ -3,6 +3,7 @@ import uuid
 from datetime import datetime, date
 from fastapi.testclient import TestClient
 
+from api.config.exception import AlreadyExistsException
 from api.main import app
 
 client = TestClient(app)
@@ -30,6 +31,14 @@ def mocked_repository(mocker):
     )
 
 
+@pytest.fixture()
+def mocked_repository_user_already_exists(mocker):
+    mocker.patch(
+        "api.user.repository.UserRepository.create",
+        side_effect=AlreadyExistsException("Email already registered"),
+    )
+
+
 def test_get_users(mocked_repository):
     response = client.get("/api/v1/users")
     assert response.status_code == 200
@@ -50,3 +59,16 @@ def test_create_user(mocked_repository):
 def test_get_user_by_id(mocked_repository):
     response = client.get(f"/api/v1/users/{uuid.uuid4()}")
     assert response.status_code == 200
+
+
+def test_create_user_alread_exists(mocked_repository_user_already_exists):
+    response = client.post(
+        "/api/v1/users",
+        json={
+            "email": "one@example.com",
+            "password": "testpassword",
+            "dateOfBirth": "1990-04-23",
+        },
+    )
+    assert response.status_code == 409
+    assert response.json()["detail"] == "Email already registered"
