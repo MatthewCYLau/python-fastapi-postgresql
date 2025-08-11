@@ -1,7 +1,12 @@
 from api.config.logging import get_logger
 from api.order.models import Order
 from api.order.repository import OrderRepository
-from api.order.schemas import OrderBase, OrderResponse, OrdersCountResponse
+from api.order.schemas import (
+    OrderBase,
+    OrderResponse,
+    OrdersCountResponse,
+    OrdersTotalCostSumResponse,
+)
 from api.product.repository import ProductRepository
 from api.product.service import ProductService
 from api.user.service import UserService
@@ -46,4 +51,10 @@ class OrderService:
         count = self.repository.get_orders_count_by_product_id(product_id)
         return OrdersCountResponse.model_validate(
             {"count": count, "product_id": product_id}
+        )
+
+    def get_orders_analysis(self) -> float:
+        total_cost_sum = self.repository.get_orders_analysis()
+        return OrdersTotalCostSumResponse.model_validate(
+            {"total_cost_sum": total_cost_sum}
         )

@@ -21,3 +21,7 @@ class OrderResponse(OrderBase):
 class OrdersCountResponse(BaseModel):
     count: int
     product_id: uuid.UUID
+
+
+class OrdersTotalCostSumResponse(BaseModel):
+    total_cost_sum: float

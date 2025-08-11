@@ -77,3 +77,9 @@ class OrderRepository:
         if not count:
             raise NotFoundException(f"Order with product id {product_id} not found")
         return count
+
+    def get_orders_analysis(self) -> float:
+        query = select(func.sum(Order.total_cost))
+        result = self.session.execute(query).scalar()
+        logger.info(f"Sum total cost: {result}")
+        return result

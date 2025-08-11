@@ -8,7 +8,12 @@ from api.config.database import get_session
 from api.config.exception import BadRequestException
 from api.config.logging import get_logger
 from api.order.repository import OrderRepository
-from api.order.schemas import OrderBase, OrderResponse, OrdersCountResponse
+from api.order.schemas import (
+    OrderBase,
+    OrderResponse,
+    OrdersCountResponse,
+    OrdersTotalCostSumResponse,
+)
 from api.order.service import OrderService
 from api.user.schemas import UserResponse
 from api.utils.date_util import validate_date_string
@@ -67,6 +72,19 @@ def get_current_user_orders(
         return orders
     except Exception as e:
         logger.error(f"Failed to fetch orders by current user ID {e}")
+        raise
+
+
+@router.get("/analysis")
+def get_orders_analysis(
+    session=Depends(get_session),
+) -> OrdersTotalCostSumResponse:
+    logger.info(f"Getting orders analysis")
+    try:
+        orders_total_cost_sum = OrderService(session).get_orders_analysis()
+        return orders_total_cost_sum
+    except Exception as e:
+        logger.error(f"Failed to fetch orders analysis {e}")
         raise
 
 
