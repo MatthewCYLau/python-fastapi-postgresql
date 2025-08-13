@@ -12,7 +12,7 @@ from api.order.schemas import (
     OrderBase,
     OrderResponse,
     OrdersCountResponse,
-    OrdersTotalCostSumResponse,
+    OrdersAnalysisResponse,
 )
 from api.order.service import OrderService
 from api.user.schemas import UserResponse
@@ -78,11 +78,11 @@ def get_current_user_orders(
 @router.get("/analysis")
 def get_orders_analysis(
     session=Depends(get_session),
-) -> OrdersTotalCostSumResponse:
+) -> OrdersAnalysisResponse:
     logger.info(f"Getting orders analysis")
     try:
-        orders_total_cost_sum = OrderService(session).get_orders_analysis()
-        return orders_total_cost_sum
+        result = OrderService(session).get_orders_analysis()
+        return result
     except Exception as e:
         logger.error(f"Failed to fetch orders analysis {e}")
         raise

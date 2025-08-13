@@ -23,5 +23,6 @@ class OrdersCountResponse(BaseModel):
     product_id: uuid.UUID
 
 
-class OrdersTotalCostSumResponse(BaseModel):
+class OrdersAnalysisResponse(BaseModel):
     total_cost_sum: float
+    average_cost: float

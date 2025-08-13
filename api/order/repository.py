@@ -1,3 +1,4 @@
+from typing import Tuple
 from sqlalchemy import and_, delete, select, func
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
@@ -78,8 +79,13 @@ class OrderRepository:
             raise NotFoundException(f"Order with product id {product_id} not found")
         return count
 
-    def get_orders_analysis(self) -> float:
-        query = select(func.sum(Order.total_cost))
-        result = self.session.execute(query).scalar()
-        logger.info(f"Sum total cost: {result}")
-        return result
+    def get_orders_analysis(self) -> Tuple[float, float]:
+        total_cost_sum_query = select(func.sum(Order.total_cost))
+        total_cost_sum = self.session.execute(total_cost_sum_query).scalar()
+        logger.info(f"Sum total cost: {total_cost_sum}")
+
+        average_cost_query = func.round(select(func.avg(Order.total_cost)), 2)
+        average_cost = self.session.execute(average_cost_query).scalar()
+        logger.info(f"Average cost: {average_cost}")
+
+        return (total_cost_sum, average_cost)

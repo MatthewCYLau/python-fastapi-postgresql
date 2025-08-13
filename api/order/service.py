@@ -5,7 +5,7 @@ from api.order.schemas import (
     OrderBase,
     OrderResponse,
     OrdersCountResponse,
-    OrdersTotalCostSumResponse,
+    OrdersAnalysisResponse,
 )
 from api.product.repository import ProductRepository
 from api.product.service import ProductService
@@ -53,8 +53,8 @@ class OrderService:
             {"count": count, "product_id": product_id}
         )
 
-    def get_orders_analysis(self) -> float:
-        total_cost_sum = self.repository.get_orders_analysis()
-        return OrdersTotalCostSumResponse.model_validate(
-            {"total_cost_sum": total_cost_sum}
+    def get_orders_analysis(self) -> OrdersAnalysisResponse:
+        total_cost_sum, average_cost = self.repository.get_orders_analysis()
+        return OrdersAnalysisResponse.model_validate(
+            {"total_cost_sum": total_cost_sum, "average_cost": average_cost}
         )
