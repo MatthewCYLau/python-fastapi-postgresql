@@ -1,8 +1,9 @@
 from typing import Tuple
-from sqlalchemy import and_, delete, select, func
+from sqlalchemy import and_, delete, select, func, update
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.order.models import Order
+from api.order.schemas import OrderBase
 
 logger = get_logger(__name__)
 
@@ -89,3 +90,23 @@ class OrderRepository:
         logger.info(f"Average cost: {average_cost}")
 
         return (total_cost_sum, average_cost)
+
+    def update_by_id(
+        self, order_id: str, order_data: OrderBase, updated_total_cost: float
+    ) -> Order:
+        update_data = order_data.model_dump(exclude_unset=True)
+        if not update_data:
+            raise ValueError("No fields to update")
+
+        query = (
+            update(Order)
+            .where(Order.id == order_id)
+            .values({"total_cost": updated_total_cost, **update_data})
+        )
+        result = self.session.execute(query)
+
+        if result.rowcount == 0:
+            raise NotFoundException(f"Order with id {order_id} not found")
+
+        self.session.commit()
+        return self.get_by_id(order_id)

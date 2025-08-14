@@ -139,3 +139,19 @@ def delete_order(
 ):
     logger.info(f"Deleting order: {order_id}")
     OrderService(session).delete_order_by_id(order_id)
+
+
+@router.patch("/{order_id}", response_model=OrderResponse)
+def update_order_by_id(
+    order_id: uuid.UUID,
+    order_data: OrderBase,
+    session=Depends(get_session),
+) -> OrderResponse:
+    logger.debug(f"Updating order {order_id}")
+    try:
+        order = OrderService(session).update_order_by_id(order_id, order_data)
+        logger.info(f"Updated order {order_id}")
+        return order
+    except Exception as e:
+        logger.error(f"Failed to update order {order_id}: {str(e)}")
+        raise

@@ -58,3 +58,14 @@ class OrderService:
         return OrdersAnalysisResponse.model_validate(
             {"total_cost_sum": total_cost_sum, "average_cost": average_cost}
         )
+
+    def update_order_by_id(self, order_id: str, order_data: OrderBase) -> Order:
+
+        product_repository = ProductRepository(self.session)
+        product_service = ProductService(product_repository)
+
+        product = product_service.get_product_by_id(order_data.product_id)
+
+        if product:
+            updated_total_cost = order_data.quantity * product.price
+        return self.repository.update_by_id(order_id, order_data, updated_total_cost)
