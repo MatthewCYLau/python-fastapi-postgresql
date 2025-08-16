@@ -67,4 +67,4 @@ jobs:
       - name: Deploy
         run: |
           gcloud run deploy ${CLOUD_RUN_SERVICE} --image "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --region europe-west1 \
-          --update-secrets=JWT_SECRET=jwt-secret:latestt
+          --update-secrets=JWT_SECRET=jwt-secret:latest
