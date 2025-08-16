@@ -1,4 +1,4 @@
-name: Build and Push to Google Container Registry
+name: Build and Deploy to Cloud Run
 
 on:
   push:
@@ -9,6 +9,7 @@ env:
   PROJECT_ID: open-source-apps-001
   IMAGE: python-fastapi-postgresql
   REGISTRY_HOSTNAME: gcr.io
+  CLOUD_RUN_SERVICE: python-fastapi-postgresql
 
 jobs:
   test:
@@ -38,7 +39,7 @@ jobs:
         run: |
           python -m pytest tests
           python -m pytest --cov=api
-  setup-build-push:
+  setup-build-publish-deploy:
     needs: test
     name: Setup, Build, and Push
     runs-on: ubuntu-latest
@@ -63,3 +64,7 @@ jobs:
         run: |
           docker push "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" 
           docker push "$REGISTRY_HOSTNAME"/$PROJECT_ID/"$IMAGE":latest
+      - name: Deploy
+        run: |
+          gcloud run deploy ${CLOUD_RUN_SERVICE} --image "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --region europe-west1 \
+          --update-secrets=JWT_SECRET=jwt-secret:latestt

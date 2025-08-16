@@ -14,7 +14,7 @@ services:
   #   image: python-fastapi-postgresql
   #   container_name: python-fastapi-postgresql
   #   ports:
-  #     - "8000:8000"
+  #     - "8080:8080"
   #   env_file: ".env"
   #   environment:
   #     - DB_HOST=db
