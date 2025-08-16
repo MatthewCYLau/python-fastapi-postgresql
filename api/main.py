@@ -30,7 +30,7 @@ from prometheus_client import (
 setup_logging()
 logger = get_logger(__name__)
 
-app = FastAPI(redirect_slashes=False)
+app = FastAPI()
 
 if os.environ.get("DB_HOST"):
     Base.metadata.create_all(bind=engine)
