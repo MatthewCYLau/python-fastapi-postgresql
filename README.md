@@ -4,6 +4,8 @@ A Python FastAPI application connecting to PostgreSQL
 
 ![ci workflow](https://github.com/MatthewCYLau/python-fastapi-postgresql/actions/workflows/ci.yaml/badge.svg)
 
+API URL here: [`https://python-fastapi-postgresql-620656388728.europe-west1.run.app/`](https://python-fastapi-postgresql-620656388728.europe-west1.run.app/)
+
 ## Run/build app locally
 
 - Run app on host machine:
