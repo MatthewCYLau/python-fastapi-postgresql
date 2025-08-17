@@ -10,6 +10,7 @@ env:
   IMAGE: python-fastapi-postgresql
   REGISTRY_HOSTNAME: gcr.io
   CLOUD_RUN_SERVICE: python-fastapi-postgresql
+  CLOUD_RUN_SERVICE_ACCOUNT_EMAIL: fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
 
 jobs:
   test:
@@ -67,4 +68,5 @@ jobs:
       - name: Deploy
         run: |
           gcloud run deploy ${CLOUD_RUN_SERVICE} --image "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --region europe-west1 \
+          --service-account=${CLOUD_RUN_SERVICE_ACCOUNT_EMAIL} \
           --update-secrets=JWT_SECRET=jwt-secret:latest

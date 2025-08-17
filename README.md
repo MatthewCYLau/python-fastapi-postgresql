@@ -32,6 +32,35 @@ pip3 install boto
 pip3 freeze > requirements.txt
 ```
 
+## Connect to Cloud SQL
+
+- Connect to Cloud SQL using `psql`:
+
+```bash
+psql postgresql://db_user:password@<cloud-sql-public-ip>:5432/python_fastapi
+psql postgresql://db_user:password@<cloud-sql-public-ip>:5432/python_fastapi -f sql/access.sql # grant access to service account
+```
+
+- Connect to Cloud SQL using [Cloud SQL Auth proxy](https://cloud.google.com/sql/docs/mysql/connect-instance-auth-proxy):
+
+```bash
+# cd <location-to-cloud-sql-proxy>
+./cloud-sql-proxy <INSTANCE_CONNECTION_NAME>
+psql -h localhost -d python_fastapi -U db_user
+```
+
+- Connect to Cloud SQL using Cloud SQL Auth proxy _and_ IAM database authentication:
+
+```bash
+gcloud config set auth/impersonate_service_account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
+gcloud auth activate-service-account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com --key=file <service-account-json-file.json>
+gcloud sql generate-login-token
+
+# cd <location-to-cloud-sql-proxy>
+./cloud-sql-proxy <INSTANCE_CONNECTION_NAME>
+psql "dbname=python_fastapi host=127.0.0.1 user=fastapi-db-iam-user@open-source-apps-001.iam password=<sql-access-token>"
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first

@@ -42,3 +42,9 @@ resource "google_sql_user" "db_user" {
   instance = google_sql_database_instance.this.id
   password = var.sql_user_password
 }
+
+resource "google_sql_user" "db_iam_user" {
+  name     = split(".gserviceaccount.com", google_service_account.cloud_sql_instance_user.email)[0]
+  instance = google_sql_database_instance.this.id
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
+}
