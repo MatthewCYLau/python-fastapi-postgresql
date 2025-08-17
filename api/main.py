@@ -45,7 +45,7 @@ app.include_router(comment_router)
 @app.get("/")
 async def up():
     logger.info("Root endpoint called")
-    return "Up!"
+    return "Up!!"
 
 
 @app.get("/ping")
