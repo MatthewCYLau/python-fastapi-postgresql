@@ -52,13 +52,23 @@ psql -h localhost -d python_fastapi -U db_user
 - Connect to Cloud SQL using Cloud SQL Auth proxy _and_ IAM database authentication:
 
 ```bash
+gcloud auth activate-service-account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com --key-file <service-account-json-file.json>
 gcloud config set auth/impersonate_service_account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
-gcloud auth activate-service-account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com --key=file <service-account-json-file.json>
 gcloud sql generate-login-token
 
 # cd <location-to-cloud-sql-proxy>
 ./cloud-sql-proxy <INSTANCE_CONNECTION_NAME>
 psql "dbname=python_fastapi host=127.0.0.1 user=fastapi-db-iam-user@open-source-apps-001.iam password=<sql-access-token>"
+```
+
+or this
+
+```bash
+gcloud auth application-default login --impersonate-service-account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
+
+# cd <location-to-cloud-sql-proxy>
+./cloud-sql-proxy --auto-iam-authn <INSTANCE_CONNECTION_NAME>
+psql "dbname=python_fastapi host=127.0.0.1 user=fastapi-db-iam-user@open-source-apps-001.iam"
 ```
 
 ## Contributing
