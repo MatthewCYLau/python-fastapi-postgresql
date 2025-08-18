@@ -15,7 +15,7 @@ python -m venv venv
 source venv/bin/activate
 pip3 install -r requirements.txt
 python3 manage.py
-uvicorn api.main:app --reload # or this
+uvicorn api.main:app --reload --port=8080 # or this
 deactivate
 ```
 
