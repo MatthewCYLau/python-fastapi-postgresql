@@ -1,8 +1,9 @@
-from sqlalchemy import select, delete
+from sqlalchemy import select, delete, update
 from api.config.exception import AlreadyExistsException, NotFoundException
 from api.config.logging import get_logger
 from api.config.security import get_password_hash
 from api.user.models import User
+from api.user.schemas import UserUpdate
 
 logger = get_logger(__name__)
 
@@ -59,3 +60,26 @@ class UserRepository:
 
         self.session.commit()
         logger.info(f"Deleted user with id {user_id}")
+
+    def update_by_id(self, user_id: str, user_data: UserUpdate) -> User:
+        update_data = user_data.model_dump(exclude_unset=True)
+        if not update_data:
+            raise ValueError("No fields to update")
+
+        query = (
+            update(User)
+            .where(User.id == user_id)
+            .values(
+                {
+                    "date_of_birth": user_data.dateOfBirth,
+                    "hashed_password": get_password_hash(user_data.password),
+                }
+            )
+        )
+        result = self.session.execute(query)
+
+        if result.rowcount == 0:
+            raise NotFoundException(f"User with id {user_id} not found")
+
+        self.session.commit()
+        return self.get_by_id(user_id)

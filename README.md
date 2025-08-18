@@ -55,6 +55,7 @@ psql -h localhost -d python_fastapi -U db_user
 gcloud auth activate-service-account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com --key-file <service-account-json-file.json>
 gcloud config set auth/impersonate_service_account fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
 gcloud sql generate-login-token
+gcloud config unset auth/impersonate_service_account
 
 # cd <location-to-cloud-sql-proxy>
 ./cloud-sql-proxy <INSTANCE_CONNECTION_NAME>

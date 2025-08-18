@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 
 from api.config.database import get_session
 from api.config.logging import get_logger
-from api.user.schemas import UserCreate, UserResponse
+from api.user.schemas import UserCreate, UserResponse, UserUpdate
 from api.user.service import UserService
 from api.user.repository import UserRepository
 
@@ -59,3 +59,20 @@ def get_user_by_id(
 def delete_user(user_id: uuid.UUID, session=Depends(get_session)):
     logger.info(f"Deleting user: {user_id}")
     UserService(session).delete_user_by_id(user_id)
+
+
+@router.patch("/{user_id}", response_model=UserResponse)
+def update_user_by_id(
+    user_id: uuid.UUID,
+    user_data: UserUpdate,
+    session=Depends(get_session),
+) -> UserResponse:
+    """Update user by ID."""
+    logger.debug(f"Updating user {user_id}")
+    try:
+        user = UserService(session).update_user_by_id(user_id, user_data)
+        logger.info(f"Updated user {user_id}")
+        return user
+    except Exception as e:
+        logger.error(f"Failed to update user {user_id}: {str(e)}")
+        raise

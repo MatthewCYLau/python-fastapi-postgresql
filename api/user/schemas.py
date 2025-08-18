@@ -14,6 +14,11 @@ class UserCreate(UserBase):
     dateOfBirth: str
 
 
+class UserUpdate(BaseModel):
+    password: str
+    dateOfBirth: str
+
+
 class UserResponse(UserBase):
     """User response schema."""
 

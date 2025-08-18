@@ -6,7 +6,7 @@ from api.config.logging import get_logger
 from api.config.security import create_access_token, verify_password
 from api.user.models import User
 from api.user.repository import UserRepository
-from api.user.schemas import UserCreate, UserResponse
+from api.user.schemas import UserCreate, UserResponse, UserUpdate
 
 logger = get_logger(__name__)
 
@@ -48,3 +48,6 @@ class UserService:
 
         logger.info(f"User authenticated: {user.email}")
         return Token(access_token=access_token)
+
+    def update_user_by_id(self, user_id: str, user_data: UserUpdate) -> User:
+        return self.repository.update_by_id(user_id, user_data)
