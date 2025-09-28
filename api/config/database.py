@@ -6,7 +6,7 @@ from google.cloud.sql.connector import Connector, IPTypes
 import pg8000
 from sqlalchemy.orm import sessionmaker
 
-postgres_username = "db_user"
+postgres_username = os.getenv("DB_USER", "db_user")
 postgres_password = os.getenv("DB_PASSWORD")
 db_address = os.getenv("DB_HOST")
 db_port = "5432"

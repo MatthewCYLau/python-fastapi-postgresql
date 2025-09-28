@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-fastapi-postgresql
+  namespace: dev
+spec:
+  selector:
+    matchLabels:
+      app: python-fastapi-postgresql
+  template:
+    metadata:
+      labels:
+        app: python-fastapi-postgresql
+    spec:
+      serviceAccountName: python-fastapi-postgresql-sa
+      containers:
+        - name: python-fastapi-postgresql
+          image: gcr.io/open-source-apps-001/python-fastapi-postgresql:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_USER
+              value: fastapi-db-iam-user@open-source-apps-001.iam
+            - name: DB_NAME
+              value: python_fastapi
+            - name: DB_HOST
+              value: 127.0.0.1
+      initContainers:
+        - name: cloud-sql-proxy
+          restartPolicy: Always
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
+          args:
+            - "--auto-iam-authn"
+            - "--structured-logs"
+            - "--port=5432"
+            - "open-source-apps-001:europe-west1:python-fastapi-5f4ceb9e"
+          securityContext:
+            runAsNonRoot: true
+          resources:
+            requests:
+              memory: 1
+              cpu: 0.25
