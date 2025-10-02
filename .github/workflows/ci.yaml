@@ -11,7 +11,7 @@ env:
   REGISTRY_HOSTNAME: gcr.io
   CLOUD_RUN_SERVICE: python-fastapi-postgresql
   CLOUD_RUN_SERVICE_ACCOUNT_EMAIL: fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
-  INSTANCE_CONNECTION_NAME: open-source-apps-001:europe-west1:python-fastapi-5f4ceb9e
+  INSTANCE_CONNECTION_NAME: open-source-apps-001:europe-west1:python-fastapi-eeb5f863
   DB_IAM_USER: fastapi-db-iam-user@open-source-apps-001.iam
 
 jobs:
