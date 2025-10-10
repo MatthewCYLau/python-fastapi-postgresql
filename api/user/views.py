@@ -7,6 +7,7 @@ from api.config.logging import get_logger
 from api.user.schemas import UserCreate, UserResponse, UserUpdate
 from api.user.service import UserService
 from api.user.repository import UserRepository
+from api.utils.cloud_storage_connector import CloudStorageConnector
 
 logger = get_logger(__name__)
 
@@ -26,7 +27,9 @@ def create_user(user_data: UserCreate, session=Depends(get_session)) -> UserResp
 
 
 def export_csv():
-    logger.info("Export users to Cloud Storage CSV.")
+    cloud_storage_connector = CloudStorageConnector(bucket_name="python-fastapi-assets")
+    blob_public_url = cloud_storage_connector.upload_csv_file()
+    logger.info(f"Export users to Cloud Storage CSV - {blob_public_url}")
 
 
 @router.post("/export-csv")
