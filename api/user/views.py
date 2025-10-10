@@ -1,5 +1,5 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
 from api.config.database import get_session
@@ -23,6 +23,16 @@ def create_user(user_data: UserCreate, session=Depends(get_session)) -> UserResp
     """Register a new user."""
     logger.info(f"Registering user: {user_data.email}")
     return UserService(session).create_user(user_data)
+
+
+def export_csv():
+    logger.info("Export users to Cloud Storage CSV.")
+
+
+@router.post("/export-csv")
+async def trigger_export_csv(background_tasks: BackgroundTasks):
+    background_tasks.add_task(export_csv)
+    return {"message": "Export users to Cloud Storage CSV triggered."}
 
 
 @router.get("/", response_model=list[UserResponse])
