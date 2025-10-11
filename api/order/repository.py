@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Tuple
 from sqlalchemy import and_, delete, select, func, update
 from api.config.exception import NotFoundException
@@ -40,10 +41,16 @@ class OrderRepository:
     def get_all(self, startDate, endDate) -> list[Order]:
 
         if startDate and endDate:
+
+            start_date_p = datetime.strptime(startDate, "%Y-%m-%d").date()
+            end_date_p = datetime.strptime(endDate, "%Y-%m-%d").date()
+
             query = (
                 select(Order)
                 .filter(
-                    and_(Order.created_at <= endDate, Order.created_at >= startDate)
+                    and_(
+                        Order.created_at <= end_date_p, Order.created_at >= start_date_p
+                    )
                 )
                 .join(Order.product)
             )
