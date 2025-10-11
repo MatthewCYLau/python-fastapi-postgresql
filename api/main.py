@@ -1,18 +1,15 @@
-import time
 from dotenv import load_dotenv
 import os
 
 from api.metrics.metrics import (
-    REQUEST_COUNT,
-    REQUEST_IN_PROGRESS,
-    REQUEST_LATENCY,
     update_system_metrics,
 )
+from api.middleware.middlewares import MetricsMiddleware, RequestHeaderMiddleware
 
 
 load_dotenv(".env")
 
-from fastapi import FastAPI, Request, Response
+from fastapi import FastAPI, Response
 from api.config.logging import setup_logging, get_logger
 from api.user.views import router as user_router
 from api.product.views import router as product_router
@@ -40,6 +37,8 @@ app.include_router(product_router)
 app.include_router(order_router)
 app.include_router(auth_router)
 app.include_router(comment_router)
+app.add_middleware(MetricsMiddleware)
+app.add_middleware(RequestHeaderMiddleware)
 
 
 @app.get("/")
@@ -51,22 +50,6 @@ async def up():
 @app.get("/ping")
 async def pong():
     return "pong!"
-
-
-@app.middleware("http")
-async def monitor_requests(request: Request, call_next):
-    method = request.method
-    path = request.url.path
-    REQUEST_IN_PROGRESS.labels(method=method, path=path).inc()
-    start_time = time.time()
-    response = await call_next(request)
-    duration = time.time() - start_time
-    status = response.status_code
-    REQUEST_COUNT.labels(method=method, status=status, path=path).inc()
-    REQUEST_LATENCY.labels(method=method, status=status, path=path).observe(duration)
-    REQUEST_IN_PROGRESS.labels(method=method, path=path).dec()
-
-    return response
 
 
 @app.get("/metrics")
