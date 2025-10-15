@@ -29,7 +29,7 @@ logger = get_logger(__name__)
 
 app = FastAPI()
 
-if os.environ.get("DB_HOST"):
+if os.environ.get("DB_HOST") or os.getenv("SQLITE_IN_MEMORY_DB"):
     Base.metadata.create_all(bind=engine)
 
 app.include_router(user_router)
