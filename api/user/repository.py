@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import select, delete, update
 from api.config.exception import AlreadyExistsException, NotFoundException
 from api.config.logging import get_logger
@@ -23,7 +24,7 @@ class UserRepository:
         user = User(
             email=user_data.email,
             hashed_password=get_password_hash(user_data.password),
-            date_of_birth=user_data.dateOfBirth,
+            date_of_birth=datetime.strptime(user_data.dateOfBirth, "%Y-%m-%d").date(),
         )
         self.session.add(user)
         self.session.commit()

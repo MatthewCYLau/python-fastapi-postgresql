@@ -72,5 +72,5 @@ jobs:
           gcloud run deploy ${CLOUD_RUN_SERVICE} --image "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --region europe-west1 \
           --service-account=${CLOUD_RUN_SERVICE_ACCOUNT_EMAIL} \
           --update-secrets=JWT_SECRET=jwt-secret:latest \
-          --set-env-vars=INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME}\
+          --set-env-vars=SQLITE_IN_MEMORY_DB=True\
           ,DB_IAM_USER=${DB_IAM_USER}

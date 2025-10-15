@@ -1,5 +1,5 @@
 import os
-from sqlalchemy import create_engine, engine
+from sqlalchemy import StaticPool, create_engine, engine
 import sqlalchemy
 from sqlalchemy.ext.declarative import declarative_base
 from google.cloud.sql.connector import Connector, IPTypes
@@ -39,6 +39,10 @@ def connect_with_connector_auto_iam_authn() -> sqlalchemy.engine.base.Engine:
 
 if os.getenv("INSTANCE_CONNECTION_NAME"):
     engine = connect_with_connector_auto_iam_authn()
+elif os.getenv("SQLITE_IN_MEMORY_DB"):
+    engine = create_engine(
+        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+    )
 else:
     engine = create_engine(SQLALCHEMY_DATABASE_URL)
 
