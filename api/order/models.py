@@ -1,4 +1,5 @@
-from sqlalchemy import TIMESTAMP, Column, text, ForeignKey, Integer, Numeric
+from datetime import datetime
+from sqlalchemy import TIMESTAMP, Column, ForeignKey, Integer, Numeric
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, relationship, mapped_column
 
@@ -16,7 +17,7 @@ class Order(Base):
     id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
     )
-    created_at = Column(TIMESTAMP(timezone=True), server_default=text("now()"))
+    created_at = Column(TIMESTAMP(timezone=True), default=datetime.now())
     user_id: Mapped[UUID] = mapped_column(ForeignKey("users.id"))
     product_id: Mapped[UUID] = mapped_column(ForeignKey("products.id"))
     product: Mapped["Product"] = relationship()
