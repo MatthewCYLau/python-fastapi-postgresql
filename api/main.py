@@ -1,3 +1,4 @@
+from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
 
@@ -10,6 +11,8 @@ from api.middleware.middlewares import MetricsMiddleware, RequestHeaderMiddlewar
 load_dotenv(".env")
 
 from fastapi import FastAPI, Response
+from contextlib import asynccontextmanager
+from apscheduler.schedulers.background import BackgroundScheduler
 from api.config.logging import setup_logging, get_logger
 from api.user.views import router as user_router
 from api.product.views import router as product_router
@@ -27,7 +30,22 @@ from prometheus_client import (
 setup_logging()
 logger = get_logger(__name__)
 
-app = FastAPI()
+
+def log_utc_time_now():
+    logger.info(
+        f"{'UTC time now:':<20}{datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')}"
+    )
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    scheduler = BackgroundScheduler()
+    scheduler.add_job(log_utc_time_now, "interval", minutes=1)
+    scheduler.start()
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
 
 if os.environ.get("DB_HOST") or os.getenv("SQLITE_IN_MEMORY_DB"):
     Base.metadata.create_all(bind=engine)
