@@ -2,15 +2,18 @@ from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
 
+from fastapi.responses import HTMLResponse
+
 from api.metrics.metrics import (
     update_system_metrics,
 )
 from api.middleware.middlewares import MetricsMiddleware, RequestHeaderMiddleware
+from api.resource.html import html
 
 
 load_dotenv(".env")
 
-from fastapi import FastAPI, Response
+from fastapi import FastAPI, Response, WebSocket
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from api.config.logging import setup_logging, get_logger
@@ -74,3 +77,16 @@ async def pong():
 async def metrics():
     update_system_metrics()
     return Response(generate_latest(REGISTRY), media_type=CONTENT_TYPE_LATEST)
+
+
+@app.get("/index")
+async def get_index():
+    return HTMLResponse(html)
+
+
+@app.websocket("/ws")
+async def websocket_endpoint(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        data = await websocket.receive_text()
+        await websocket.send_text(f"Message text was: {data}")
