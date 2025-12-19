@@ -72,6 +72,21 @@ gcloud auth application-default login --impersonate-service-account fastapi-db-i
 psql "dbname=python_fastapi host=127.0.0.1 user=fastapi-db-iam-user@open-source-apps-001.iam"
 ```
 
+## Workload Identity IAM policy binding
+
+```
+gcloud iam service-accounts add-iam-policy-binding \
+--role="roles/iam.workloadIdentityUser" \
+--member="serviceAccount:open-source-apps-001.svc.id.goog[dev/python-fastapi-postgresql-sa]" \
+fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
+```
+
+## Get request time via `curl` command
+
+```
+curl -s -o /dev/null -w "Total time: %{time_total} seconds\n" http://34.8.102.74
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
