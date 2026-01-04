@@ -6,6 +6,9 @@ variable "region" {
   description = "GCP region"
 }
 
+variable "zone" {
+}
+
 variable "sql_user_password" {
   description = "Cloud SQL user, its password"
 }

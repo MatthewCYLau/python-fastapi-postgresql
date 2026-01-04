@@ -6,7 +6,8 @@ resource "google_sql_database_instance" "this" {
   name   = "python-fastapi-${random_id.db_name_suffix.hex}"
   region = var.region
 
-  // public network settings
+  # depends_on = [google_service_networking_connection.private_vpc_connection]
+
   settings {
     tier              = "db-f1-micro"
     availability_type = "REGIONAL"
@@ -14,6 +15,12 @@ resource "google_sql_database_instance" "this" {
       environment : "production"
     }
 
+    # ip_configuration {
+    #   ipv4_enabled    = false
+    #   private_network = google_compute_network.vpc.id
+    # }
+
+    // public network settings
     ip_configuration {
       ipv4_enabled = true
       authorized_networks {
