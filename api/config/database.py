@@ -18,7 +18,7 @@ SQLALCHEMY_DATABASE_URL = f"postgresql://{postgres_username}:{postgres_password}
 def connect_with_connector_auto_iam_authn() -> sqlalchemy.engine.base.Engine:
     instance_connection_name = os.environ["INSTANCE_CONNECTION_NAME"]
     db_iam_user = os.environ["DB_IAM_USER"]
-    ip_type = IPTypes.PUBLIC
+    ip_type = IPTypes.PRIVATE
 
     connector = Connector(refresh_strategy="LAZY")
 

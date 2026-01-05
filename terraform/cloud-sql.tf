@@ -6,7 +6,7 @@ resource "google_sql_database_instance" "this" {
   name   = "python-fastapi-${random_id.db_name_suffix.hex}"
   region = var.region
 
-  # depends_on = [google_service_networking_connection.private_vpc_connection]
+  depends_on = [google_service_networking_connection.private_vpc_connection]
 
   settings {
     tier              = "db-f1-micro"
@@ -15,19 +15,19 @@ resource "google_sql_database_instance" "this" {
       environment : "production"
     }
 
-    # ip_configuration {
-    #   ipv4_enabled    = false
-    #   private_network = google_compute_network.vpc.id
-    # }
+    ip_configuration {
+      ipv4_enabled    = false
+      private_network = google_compute_network.this.id
+    }
 
     // public network settings
-    ip_configuration {
-      ipv4_enabled = true
-      authorized_networks {
-        name  = "public"
-        value = "0.0.0.0/0"
-      }
-    }
+    # ip_configuration {
+    #   ipv4_enabled = true
+    #   authorized_networks {
+    #     name  = "public"
+    #     value = "0.0.0.0/0"
+    #   }
+    # }
 
     database_flags {
       name  = "cloudsql.iam_authentication"

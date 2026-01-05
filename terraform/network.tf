@@ -33,3 +33,15 @@ resource "google_vpc_access_connector" "this" {
     name = google_compute_subnetwork.this.name
   }
 }
+
+resource "google_compute_firewall" "allow_ssh" {
+  name      = "allow-ssh"
+  network   = google_compute_network.this.id
+  direction = "INGRESS"
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["bastion"]
+}
