@@ -1,3 +1,4 @@
+/*
 resource "google_service_account" "bastion_account" {
   account_id   = "bastion-account"
   display_name = "Bastion service account"
@@ -41,3 +42,4 @@ resource "google_compute_instance" "bastion" {
   }
 
 }
+*/

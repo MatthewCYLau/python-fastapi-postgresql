@@ -16,6 +16,7 @@ resource "google_storage_bucket" "this" {
   }
 }
 
+
 data "google_iam_policy" "this" {
   binding {
     role = "roles/storage.objectViewer"

@@ -1,3 +1,4 @@
+/*
 resource "google_compute_network" "this" {
   name                    = "cloud-sql-vpc"
   auto_create_subnetworks = false
@@ -45,3 +46,4 @@ resource "google_compute_firewall" "allow_ssh" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["bastion"]
 }
+*/
