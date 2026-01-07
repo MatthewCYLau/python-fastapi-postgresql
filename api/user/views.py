@@ -27,7 +27,9 @@ def create_user(user_data: UserCreate, session=Depends(get_session)) -> UserResp
 
 
 def export_csv():
-    cloud_storage_connector = CloudStorageConnector(bucket_name="python-fastapi-assets")
+    cloud_storage_connector = CloudStorageConnector(
+        bucket_name="python-fastapi-assets-uniform-access"
+    )
     blob_public_url = cloud_storage_connector.upload_csv_file()
     logger.info(f"Export users to Cloud Storage CSV - {blob_public_url}")
 
