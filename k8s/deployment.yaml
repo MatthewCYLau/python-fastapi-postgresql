@@ -25,6 +25,13 @@ spec:
               value: python_fastapi
             - name: DB_HOST
               value: 127.0.0.1
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: python-app-data
       initContainers:
         - name: cloud-sql-proxy
           restartPolicy: Always

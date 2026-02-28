@@ -1,8 +1,12 @@
 from datetime import datetime, timezone
 from dotenv import load_dotenv
 import os
+import random
+from pathlib import Path
+
 
 from fastapi.responses import HTMLResponse
+import pytz
 
 from api.metrics.metrics import (
     update_system_metrics,
@@ -90,3 +94,21 @@ async def websocket_endpoint(websocket: WebSocket):
     while True:
         data = await websocket.receive_text()
         await websocket.send_text(f"Message text was: {data}")
+
+
+DATA_DIR = Path("/app/data")
+DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+@app.post("/text")
+def write_text():
+    GB = pytz.timezone("Europe/London")
+    timestamp = datetime.now(timezone.utc).astimezone(GB).strftime("%Y%m%d%H%M%S")
+    text_filename = f"{timestamp}-output.txt"
+    target_path = DATA_DIR / text_filename
+    with open(target_path, "w") as f:
+        f.write(f"Random number is {random.randint(1, 10)}")
+    with open(target_path, "r") as f:
+        body = f.read()
+    logger.info(body)
+    return "Done"
