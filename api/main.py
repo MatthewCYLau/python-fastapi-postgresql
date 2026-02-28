@@ -96,12 +96,10 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text(f"Message text was: {data}")
 
 
-DATA_DIR = Path("/app/data")
-DATA_DIR.mkdir(parents=True, exist_ok=True)
-
-
 @app.post("/text")
 def write_text():
+    DATA_DIR = Path("/app/data")
+    DATA_DIR.mkdir(parents=True, exist_ok=True)
     GB = pytz.timezone("Europe/London")
     timestamp = datetime.now(timezone.utc).astimezone(GB).strftime("%Y%m%d%H%M%S")
     text_filename = f"{timestamp}-output.txt"
