@@ -1,0 +1,13 @@
+kind: HTTPRoute
+apiVersion: gateway.networking.k8s.io/v1
+metadata:
+  namespace: dev
+  name: python-fastapi-postgresql
+spec:
+  parentRefs:
+    - kind: Gateway
+      name: external-http
+  rules:
+    - backendRefs:
+        - name: python-fastapi-postgresql
+          port: 80

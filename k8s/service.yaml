@@ -4,7 +4,7 @@ metadata:
   name: python-fastapi-postgresql
   namespace: dev
 spec:
-  type: NodePort
+  type: ClusterIP # For GKE Ingress use NodePort
   selector:
     app: python-fastapi-postgresql
   ports:
