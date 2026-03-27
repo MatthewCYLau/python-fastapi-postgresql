@@ -18,13 +18,19 @@ def get_comment_service(session: Session = Depends(get_session)) -> CommentServi
     return CommentService(repository)
 
 
-@router.get("/", response_model=list[CommentResponse])
+@router.get("/", response_model=list[CommentResponse | CommentBase])
 def get_all_products(
     service: CommentService = Depends(get_comment_service),
-) -> list[CommentResponse]:
+    groupByProductId: str = None,
+) -> list[CommentResponse | CommentBase]:
     """Get all comments."""
     logger.debug("Fetching all comments")
     try:
+
+        if groupByProductId:
+            res = service.get_comments_group_by_order_id(groupByProductId)
+            return res
+
         commments = service.get_all_comments()
         logger.info(f"Retrieved {len(commments)} commments")
         return commments

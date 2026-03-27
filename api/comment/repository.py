@@ -1,4 +1,4 @@
-from sqlalchemy import delete, select
+from sqlalchemy import delete, func, select
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.comment.models import Comment
@@ -37,3 +37,15 @@ class CommentRepository:
 
         self.session.commit()
         logger.info(f"Deleted comment with id {comment_id}")
+
+    def get_comments_group_by_product_id(self, product_id: str):
+        query = (
+            select(
+                Comment.product_id,
+                func.string_agg(Comment.body, ", ").label("comment_bodys"),
+            )
+            .group_by(Comment.product_id)
+            .where(Comment.product_id == product_id)
+        )
+        result = self.session.execute(query)
+        return list(result.all())

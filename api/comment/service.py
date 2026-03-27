@@ -18,3 +18,12 @@ class CommentService:
 
     def delete_comment_by_id(self, comment_id: str) -> None:
         self.repository.delete_comment_by_id(comment_id)
+
+    def get_comments_group_by_order_id(self, product_id: str):
+        res = self.repository.get_comments_group_by_product_id(product_id)
+        return [
+            CommentBase.model_validate(
+                {"product_id": i.product_id, "body": i.comment_bodys}
+            )
+            for i in res
+        ]
