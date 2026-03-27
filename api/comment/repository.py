@@ -1,4 +1,4 @@
-from sqlalchemy import delete
+from sqlalchemy import delete, select
 from api.config.exception import NotFoundException
 from api.config.logging import get_logger
 from api.comment.models import Comment
@@ -11,6 +11,11 @@ class CommentRepository:
 
     def __init__(self, session):
         self.session = session
+
+    def get_all(self) -> list[Comment]:
+        query = select(Comment)
+        result = self.session.execute(query)
+        return list(result.scalars().all())
 
     def create(self, comment_data) -> Comment:
 

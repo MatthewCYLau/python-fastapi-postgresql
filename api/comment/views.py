@@ -2,7 +2,7 @@ import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 from api.comment.repository import CommentRepository
-from api.comment.schemas import CommentBase
+from api.comment.schemas import CommentBase, CommentResponse
 from api.comment.service import CommentService
 from api.config.logging import get_logger
 from api.config.database import get_session
@@ -16,6 +16,21 @@ router = APIRouter(prefix="/api/v1/comments", tags=["comments"])
 def get_comment_service(session: Session = Depends(get_session)) -> CommentService:
     repository = CommentRepository(session)
     return CommentService(repository)
+
+
+@router.get("/", response_model=list[CommentResponse])
+def get_all_products(
+    service: CommentService = Depends(get_comment_service),
+) -> list[CommentResponse]:
+    """Get all comments."""
+    logger.debug("Fetching all comments")
+    try:
+        commments = service.get_all_comments()
+        logger.info(f"Retrieved {len(commments)} commments")
+        return commments
+    except Exception as e:
+        logger.error(f"Failed to fetch commments: {str(e)}")
+        raise
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
