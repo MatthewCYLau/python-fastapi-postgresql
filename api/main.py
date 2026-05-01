@@ -4,6 +4,8 @@ import os
 import random
 from pathlib import Path
 
+import pandas as pd
+
 
 from fastapi.responses import HTMLResponse
 import pytz
@@ -13,7 +15,6 @@ from api.metrics.metrics import (
 )
 from api.middleware.middlewares import MetricsMiddleware, RequestHeaderMiddleware
 from api.resource.html import html
-
 
 load_dotenv(".env")
 
@@ -33,7 +34,6 @@ from prometheus_client import (
     CONTENT_TYPE_LATEST,
     REGISTRY,
 )
-
 
 setup_logging()
 logger = get_logger(__name__)
@@ -113,3 +113,17 @@ def write_text():
         body = f.read()
     logger.info(body)
     return "Done"
+
+
+query = "SELECT * FROM products;"
+
+
+@app.get("/products-df")
+def get_products_dataframe():
+    from api.config.database import engine
+
+    with engine.connect() as conn:
+        df = pd.read_sql(query, conn)
+    logger.info(df.head())
+
+    return df["name"].values.tolist()
