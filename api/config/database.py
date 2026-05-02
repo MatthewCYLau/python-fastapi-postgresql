@@ -37,16 +37,22 @@ def connect_with_connector_auto_iam_authn() -> sqlalchemy.engine.base.Engine:
     return pool
 
 
-if os.getenv("INSTANCE_CONNECTION_NAME"):
-    engine = connect_with_connector_auto_iam_authn()
-elif os.getenv("SQLITE_IN_MEMORY_DB"):
-    engine = create_engine(
-        "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
-    )
-else:
-    engine = create_engine(SQLALCHEMY_DATABASE_URL)
+def get_database_engine():
 
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+    if os.getenv("INSTANCE_CONNECTION_NAME"):
+        engine = connect_with_connector_auto_iam_authn()
+    elif os.getenv("SQLITE_IN_MEMORY_DB"):
+        engine = create_engine(
+            "sqlite://", connect_args={"check_same_thread": False}, poolclass=StaticPool
+        )
+    else:
+        engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    return engine
+
+
+SessionLocal = sessionmaker(
+    autocommit=False, autoflush=False, bind=get_database_engine()
+)
 
 Base = declarative_base()
 
