@@ -55,3 +55,36 @@ resource "google_sql_user" "db_iam_user" {
   instance = google_sql_database_instance.this.id
   type     = "CLOUD_IAM_SERVICE_ACCOUNT"
 }
+
+
+resource "null_resource" "execute_access_sql" {
+  triggers = {
+    instance_id = google_sql_database_instance.this.id
+  }
+
+  provisioner "local-exec" {
+    environment = {
+      PGPASSWORD = google_sql_user.db_user.password
+    }
+
+    command = <<EOT
+      # Wait for PostgreSQL port 5432 to be ready
+      echo "Waiting for Cloud SQL instance to accept connections..."
+      until pg_isready -h ${google_sql_database_instance.this.public_ip_address} -p 5432 -U ${google_sql_user.db_user.name}; do
+        sleep 5
+      done
+
+      # Execute the SQL access script
+      psql -h ${google_sql_database_instance.this.public_ip_address} \
+           -U ${google_sql_user.db_user.name} \
+           -d ${google_sql_database.this.name} \
+           -f sql/access.sql
+    EOT
+  }
+
+  depends_on = [
+    google_sql_database.this,
+    google_sql_user.db_user,
+    google_sql_user.db_iam_user
+  ]
+}
