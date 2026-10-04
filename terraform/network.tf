@@ -46,4 +46,42 @@ resource "google_compute_firewall" "allow_ssh" {
   source_ranges = ["0.0.0.0/0"]
   target_tags   = ["bastion"]
 }
+
+resource "google_compute_network" "vpc" {
+  name                    = "cloud-sql-vpc"
+  auto_create_subnetworks = false
+  routing_mode            = "GLOBAL"
+}
+
+resource "google_compute_subnetwork" "subnet" {
+  name          = "subnet-${var.region}"
+  ip_cidr_range = local.subnet_ip_cidr_range
+  region        = var.region
+  network       = google_compute_network.vpc.id
+
+  private_ip_google_access = true
+
+  log_config {
+    aggregation_interval = "INTERVAL_5_SEC"
+    flow_sampling        = 0.5 #
+    metadata             = "INCLUDE_ALL_METADATA"
+  }
+}
+
+resource "google_compute_firewall" "allow_internal" {
+  name    = "allow-internal"
+  network = google_compute_network.vpc.name
+
+  allow {
+    protocol = "tcp"
+  }
+  allow {
+    protocol = "udp"
+  }
+  allow {
+    protocol = "icmp"
+  }
+
+  source_ranges = [local.subnet_ip_cidr_range]
+}
 */
