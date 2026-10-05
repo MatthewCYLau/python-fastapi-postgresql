@@ -4,7 +4,8 @@ on:
   push:
     branches:
       - master
-
+    paths:
+      - "api/**"
 env:
   PROJECT_ID: open-source-apps-001
   IMAGE: python-fastapi-postgresql
