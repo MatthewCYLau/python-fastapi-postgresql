@@ -39,6 +39,8 @@ jobs:
         run: terraform test
       - name: Terraform Plan
         run: terraform plan -out=terraform.tfplan
+        env:
+          TF_VAR_sql_user_password: ${{ secrets.DB_PASSWORD }}
       - uses: actions/upload-artifact@v4
         with:
           path: ${{ env.TF_APP_WORKDIR }}/terraform.tfplan
