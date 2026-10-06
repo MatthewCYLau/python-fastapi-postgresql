@@ -24,9 +24,8 @@ module "gh_oidc" {
 
   sa_mapping = {
     "wif-sa" = {
-      sa_name = google_service_account.wif.name
-      # Map directly to the subject claim prefix using wildcards
-      attribute = "attribute.sub/repo:MatthewCYLau/python-fastapi-postgresql:*"
+      sa_name   = google_service_account.wif.name
+      attribute = "attribute.repository/MatthewCYLau/python-fastapi-postgresql"
     }
   }
 
@@ -37,7 +36,7 @@ module "gh_oidc" {
     "attribute.repository_owner" = "assertion.repository_owner"
     "google.subject"             = "assertion.sub"
   }
-  attribute_condition = "attribute.repository == assertion.repository && attribute.repository_owner == assertion.repository_owner"
+  attribute_condition = "attribute.repository==assertion.repository"
 
 }
 
