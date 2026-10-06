@@ -5,11 +5,11 @@ on:
     branches:
       - main
     paths:
-      - "deploy/app/**"
+      - "terraform/app/**"
   workflow_dispatch:
 
 env:
-  TF_APP_WORKDIR: ./deploy/app
+  TF_APP_WORKDIR: terraform/app
 
 jobs:
   terraform-plan:
