@@ -1,0 +1,45 @@
+name: Provision GCP infrastructure
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "deploy/app/**"
+  workflow_dispatch:
+
+env:
+  TF_APP_WORKDIR: ./deploy/app
+
+jobs:
+  terraform-plan:
+    name: "Terraform plan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_APP_WORKDIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
+          service_account: ${{ secrets.SA_EMAIL }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform test
+        run: terraform test
+      - name: Terraform Plan
+        run: terraform plan -out=terraform.tfplan
+      - uses: actions/upload-artifact@v4
+        with:
+          path: ${{ env.TF_APP_WORKDIR }}/terraform.tfplan
+          name: artifact
