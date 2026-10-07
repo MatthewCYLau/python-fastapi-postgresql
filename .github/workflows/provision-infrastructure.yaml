@@ -45,3 +45,33 @@ jobs:
         with:
           path: ${{ env.TF_APP_WORKDIR }}/terraform.tfplan
           name: artifact
+  terraform-apply:
+    name: "Terraform apply"
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+    permissions:
+      contents: "read"
+      id-token: "write"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_APP_WORKDIR }}
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
+          service_account: ${{ secrets.SA_EMAIL }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Apply
+        run: terraform apply -input=false -auto-approve terraform.tfplan
+        env:
+          TF_VAR_sql_user_password: ${{ secrets.DB_PASSWORD }}
