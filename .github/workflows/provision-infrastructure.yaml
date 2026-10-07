@@ -24,7 +24,7 @@ jobs:
         working-directory: ${{ env.TF_APP_WORKDIR }}
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
@@ -41,10 +41,12 @@ jobs:
         run: terraform plan -out=terraform.tfplan
         env:
           TF_VAR_sql_user_password: ${{ secrets.DB_PASSWORD }}
-      - uses: actions/upload-artifact@v4
+      - name: Upload Terraform Plan Artifact
+        uses: actions/upload-artifact@v4
         with:
+          name: tfplan
           path: ${{ env.TF_APP_WORKDIR }}/terraform.tfplan
-          name: artifact
+
   terraform-apply:
     name: "Terraform apply"
     runs-on: ubuntu-latest
@@ -60,7 +62,12 @@ jobs:
       name: production
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4
+      - name: Download Terraform Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: ${{ env.TF_APP_WORKDIR }}
       - id: "auth"
         name: "Authenticate to Google Cloud"
         uses: "google-github-actions/auth@v2"
