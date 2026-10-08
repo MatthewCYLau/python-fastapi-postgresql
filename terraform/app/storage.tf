@@ -16,7 +16,7 @@ resource "google_storage_bucket" "this" {
   }
 }
 
-data "google_client_config" "current" {}
+data "google_client_openid_userinfo" "ci_runner" {}
 
 data "google_iam_policy" "this" {
   binding {
@@ -29,7 +29,7 @@ data "google_iam_policy" "this" {
   binding {
     role = "roles/storage.admin"
     members = [
-      "serviceAccount:${data.google_client_config.current.client_email}",
+      "serviceAccount:${data.google_client_openid_userinfo.ci_runner.email}",
     ]
   }
 
