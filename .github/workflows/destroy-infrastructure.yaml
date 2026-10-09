@@ -1,0 +1,76 @@
+name: Destroy GCP infrastructure
+
+on:
+  workflow_dispatch:
+
+env:
+  TF_APP_WORKDIR: terraform/app
+
+jobs:
+  terraform-destroy-plan:
+    name: "Terraform destroy plan"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: "read"
+      id-token: "write"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_APP_WORKDIR }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
+          service_account: ${{ secrets.SA_EMAIL }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Destroy Plan
+        run: terraform plan -destroy -out=terraform-destroy.tfplan
+        env:
+          TF_VAR_sql_user_password: ${{ secrets.DB_PASSWORD }}
+      - name: Upload Destroy Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: destroy-tfplan
+          path: ${{ env.TF_APP_WORKDIR }}/terraform-destroy.tfplan
+  terraform-destroy-apply:
+    name: "Terraform destroy apply"
+    runs-on: ubuntu-latest
+    needs: terraform-destroy-plan
+    permissions:
+      contents: "read"
+      id-token: "write"
+    defaults:
+      run:
+        shell: bash
+        working-directory: ${{ env.TF_APP_WORKDIR }}
+    environment:
+      name: production
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download Destroy Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: destroy-tfplan
+          path: ${{ env.TF_APP_WORKDIR }}
+      - id: "auth"
+        name: "Authenticate to Google Cloud"
+        uses: "google-github-actions/auth@v2"
+        with:
+          workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
+          service_account: ${{ secrets.SA_EMAIL }}
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Destroy Apply
+        run: terraform apply -input=false -auto-approve terraform-destroy.tfplan
+        env:
+          TF_VAR_sql_user_password: ${{ secrets.DB_PASSWORD }}
