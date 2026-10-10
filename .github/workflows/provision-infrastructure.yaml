@@ -3,7 +3,7 @@ name: Provision GCP infrastructure
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "terraform/app/**"
   workflow_dispatch:
