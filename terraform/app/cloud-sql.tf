@@ -33,6 +33,18 @@ resource "google_sql_database_instance" "this" {
       name  = "cloudsql.iam_authentication"
       value = "on"
     }
+
+    backup_configuration {
+      enabled                        = true
+      start_time                     = "03:00"
+      point_in_time_recovery_enabled = false
+
+      backup_retention_settings {
+        retained_backups = 1
+        retention_unit   = "COUNT"
+      }
+    }
+
   }
 
   database_version    = "POSTGRES_15"
