@@ -50,3 +50,14 @@ resource "google_project_iam_member" "app_cloud_sql_user" {
     expression  = "resource.name == 'projects/${var.project}/instances/${google_sql_database_instance.this.name}'"
   }
 }
+
+resource "google_project_iam_member" "app_cloud_sql_user_read_replica" {
+  project = var.project
+  role    = google_project_iam_custom_role.app_sql_user.name
+  member  = "serviceAccount:${google_service_account.cloud_sql_instance_user.email}"
+  condition {
+    title       = "resource_name_equals_cloud_sql_instance_name"
+    description = "Resource name equals ${google_sql_database_instance.replica.name}"
+    expression  = "resource.name == 'projects/${var.project}/instances/${google_sql_database_instance.replica.name}'"
+  }
+}
