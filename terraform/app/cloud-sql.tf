@@ -100,3 +100,34 @@ resource "null_resource" "execute_access_sql" {
     google_sql_user.db_iam_user
   ]
 }
+
+resource "google_sql_database_instance" "replica" {
+  name             = "python-fastapi-replica-${random_id.db_name_suffix.hex}"
+  region           = var.region
+  database_version = "POSTGRES_15"
+  master_instance_name = google_sql_database_instance.this.name
+  deletion_protection  = "false"
+
+  settings {
+    tier              = "db-f1-micro"
+    availability_type = "ZONAL"
+
+    user_labels = {
+      environment = "production"
+      role        = "replica"
+    }
+
+    ip_configuration {
+      ipv4_enabled = true
+      authorized_networks {
+        name  = "public"
+        value = "0.0.0.0/0"
+      }
+    }
+
+    database_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
+  }
+}
