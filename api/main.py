@@ -55,7 +55,11 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 
-if os.environ.get("DB_HOST") or os.getenv("SQLITE_IN_MEMORY_DB"):
+if (
+    os.environ.get("DB_HOST")
+    or os.getenv("SQLITE_IN_MEMORY_DB")
+    or os.environ.get("INSTANCE_CONNECTION_NAME")
+):
     Base.metadata.create_all(bind=get_database_engine())
 
 app.include_router(user_router)
