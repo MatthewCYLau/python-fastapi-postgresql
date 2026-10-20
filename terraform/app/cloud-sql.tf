@@ -11,10 +11,13 @@ resource "google_sql_database_instance" "this" {
   settings {
     tier              = "db-f1-micro"
     availability_type = "REGIONAL"
-    user_labels = {
-      environment : "production"
-    }
 
+    user_labels = merge(
+      {
+        environment = "production"
+      },
+      var.resource_tags
+    )
     # ip_configuration {
     #   ipv4_enabled    = false
     #   private_network = google_compute_network.this.id
