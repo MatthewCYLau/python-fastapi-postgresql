@@ -63,16 +63,17 @@ resource "google_monitoring_alert_policy" "cloud_sql_high_disk" {
 }
 
 resource "google_monitoring_alert_policy" "cloud_sql_high_connections" {
-  display_name = "Cloud SQL High Connection Utilization (> 80%)"
+  display_name = "Cloud SQL High Connection Count"
   combiner     = "OR"
   conditions {
-    display_name = "Cloud SQL Connection utilization - 80% threshold"
+    display_name = "Cloud SQL PostgreSQL Backends - High Connection Count"
 
     condition_threshold {
-      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/memory/connections_utilization\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
+      // Adjust threshold_value based on your instance's max_connections limit
+      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/postgresql/num_backends\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
       duration        = "300s"
       comparison      = "COMPARISON_GT"
-      threshold_value = 0.8 # 80% of max_connections
+      threshold_value = 80 # Adjust based on your max_connections limit (e.g., 80 connections)
 
       aggregations {
         alignment_period   = "60s"
