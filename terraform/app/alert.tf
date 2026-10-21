@@ -63,17 +63,16 @@ resource "google_monitoring_alert_policy" "cloud_sql_high_disk" {
 }
 
 resource "google_monitoring_alert_policy" "cloud_sql_high_connections" {
-  display_name = "Cloud SQL High Connection Count (> 80% of limit)"
+  display_name = "Cloud SQL High Connection Utilization (> 80%)"
   combiner     = "OR"
   conditions {
     display_name = "Cloud SQL Connection utilization - 80% threshold"
 
     condition_threshold {
-      // Compares current connections against the maximum allowed connections configured on the instance
-      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/postgresql/num_connections\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
+      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/memory/connections_utilization\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
       duration        = "300s"
       comparison      = "COMPARISON_GT"
-      threshold_value = 0.8 # Note: If using raw connection counts rather than ratio metrics, adjust based on max_connections setting. Alternatively, monitor mysql/postgresql specific connection ratio metrics if available.
+      threshold_value = 0.8 # 80% of max_connections
 
       aggregations {
         alignment_period   = "60s"
@@ -98,7 +97,6 @@ resource "google_monitoring_alert_policy" "cloud_sql_uptime" {
     display_name = "Cloud SQL Instance uptime health check"
 
     condition_threshold {
-      // 1 means UP, 0 means DOWN
       filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/up\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
       duration        = "60s"
       comparison      = "COMPARISON_LT"
@@ -116,6 +114,6 @@ resource "google_monitoring_alert_policy" "cloud_sql_uptime" {
   ]
 
   alert_strategy {
-    auto_close = "600s"
+    auto_close = "1800s" # Increased to meet the 30-minute minimum API requirement
   }
 }
