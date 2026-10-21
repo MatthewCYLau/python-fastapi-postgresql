@@ -33,3 +33,89 @@ resource "google_monitoring_alert_policy" "cloud_sql_high_cpu" {
     auto_close = "1800s" # Automatically close incident after 30 mins if CPU drops
   }
 }
+
+resource "google_monitoring_alert_policy" "cloud_sql_high_disk" {
+  display_name = "Cloud SQL High Disk Utilization (> 85%)"
+  combiner     = "OR"
+  conditions {
+    display_name = "Cloud SQL Disk utilization - 85% threshold"
+
+    condition_threshold {
+      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/disk/utilization\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
+      duration        = "300s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0.85 # 85%
+
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
+  }
+
+  notification_channels = [
+    google_monitoring_notification_channel.email.name,
+  ]
+
+  alert_strategy {
+    auto_close = "1800s"
+  }
+}
+
+resource "google_monitoring_alert_policy" "cloud_sql_high_connections" {
+  display_name = "Cloud SQL High Connection Count (> 80% of limit)"
+  combiner     = "OR"
+  conditions {
+    display_name = "Cloud SQL Connection utilization - 80% threshold"
+
+    condition_threshold {
+      // Compares current connections against the maximum allowed connections configured on the instance
+      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/postgresql/num_connections\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
+      duration        = "300s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = 0.8 # Note: If using raw connection counts rather than ratio metrics, adjust based on max_connections setting. Alternatively, monitor mysql/postgresql specific connection ratio metrics if available.
+
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_MEAN"
+      }
+    }
+  }
+
+  notification_channels = [
+    google_monitoring_notification_channel.email.name,
+  ]
+
+  alert_strategy {
+    auto_close = "1800s"
+  }
+}
+
+resource "google_monitoring_alert_policy" "cloud_sql_uptime" {
+  display_name = "Cloud SQL Instance Down"
+  combiner     = "OR"
+  conditions {
+    display_name = "Cloud SQL Instance uptime health check"
+
+    condition_threshold {
+      // 1 means UP, 0 means DOWN
+      filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/up\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
+      duration        = "60s"
+      comparison      = "COMPARISON_LT"
+      threshold_value = 1
+
+      aggregations {
+        alignment_period   = "60s"
+        per_series_aligner = "ALIGN_NEXT_OLDER"
+      }
+    }
+  }
+
+  notification_channels = [
+    google_monitoring_notification_channel.email.name,
+  ]
+
+  alert_strategy {
+    auto_close = "600s"
+  }
+}
