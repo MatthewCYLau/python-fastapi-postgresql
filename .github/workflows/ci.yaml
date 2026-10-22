@@ -5,16 +5,19 @@ on:
   push:
     branches:
       - master
+    tags:
+      - "v*"
     paths:
       - "api/**"
 env:
   PROJECT_ID: open-source-apps-001
   IMAGE: python-fastapi-postgresql
   REGISTRY_HOSTNAME: gcr.io
-  CLOUD_RUN_SERVICE: python-fastapi-postgresql
+  CLOUD_RUN_SERVICE_STAGING: python-fastapi-postgresql
+  CLOUD_RUN_SERVICE_PROD: python-fastapi-postgresql-prod # Update with your actual production service name
   CLOUD_RUN_SERVICE_ACCOUNT_EMAIL: fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
-  INSTANCE_CONNECTION_NAME: open-source-apps-001:europe-west1:python-fastapi-567dbd7b
-  INSTANCE_CONNECTION_NAME_READ: open-source-apps-001:europe-west1:python-fastapi-replica-567dbd7b
+  INSTANCE_CONNECTION_NAME: open-source-apps-001:europe-west1:python-fastapi-2096f0a2
+  INSTANCE_CONNECTION_NAME_READ: open-source-apps-001:europe-west1:python-fastapi-replica-2096f0a2
   DB_IAM_USER: fastapi-db-iam-user@open-source-apps-001.iam
 
 jobs:
@@ -52,6 +55,18 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+      - name: Determine Environment and Tags
+        id: config
+        run: |
+          if [ "${{ github.ref_type }}" = "tag" ]; then
+            echo "IMAGE_TAG=${{ github.ref_name }}" >> $GITHUB_ENV
+            echo "CLOUD_RUN_SERVICE=${{ env.CLOUD_RUN_SERVICE_PROD }}" >> $GITHUB_ENV
+            echo "ENV_TYPE=production" >> $GITHUB_ENV
+          else
+            echo "IMAGE_TAG=${{ github.sha }}" >> $GITHUB_ENV
+            echo "CLOUD_RUN_SERVICE=${{ env.CLOUD_RUN_SERVICE_STAGING }}" >> $GITHUB_ENV
+            echo "ENV_TYPE=staging" >> $GITHUB_ENV
+          fi
       - name: Set up Cloud SDK
         uses: "google-github-actions/auth@v2"
         with:
@@ -59,22 +74,21 @@ jobs:
       - name: Authenticate with Container Registry
         run: |
           gcloud --quiet auth configure-docker
-      # Build the Docker image
       - name: Build
         run: |-
-          docker build -t \
-          "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" -t \
-          "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:latest" .
-      # Push the Docker image to Google Container Registry
+          docker build -t "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:${{ env.IMAGE_TAG }}" \
+                       -t "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:latest" .
       - name: Push
         run: |
-          docker push "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" 
-          docker push "$REGISTRY_HOSTNAME"/$PROJECT_ID/"$IMAGE":latest
-      - name: Deploy
+          docker push "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:${{ env.IMAGE_TAG }}"
+          docker push "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:latest"
+      - name: Deploy (${{ env.ENV_TYPE }})
         run: |
-          gcloud run deploy ${CLOUD_RUN_SERVICE} --image "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:$GITHUB_SHA" --region europe-west1 \
-          --service-account=${CLOUD_RUN_SERVICE_ACCOUNT_EMAIL} \
-          --update-secrets=JWT_SECRET=jwt-secret:latest \
-          --set-env-vars=INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME},\
-          INSTANCE_CONNECTION_NAME_READ=${INSTANCE_CONNECTION_NAME_READ},\
-          DB_IAM_USER=${DB_IAM_USER}
+          gcloud run deploy ${{ env.CLOUD_RUN_SERVICE }} \
+            --image "$REGISTRY_HOSTNAME/$PROJECT_ID/$IMAGE:${{ env.IMAGE_TAG }}" \
+            --region europe-west1 \
+            --service-account=${CLOUD_RUN_SERVICE_ACCOUNT_EMAIL} \
+            --update-secrets=JWT_SECRET=jwt-secret:latest \
+            --set-env-vars=INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME},\
+            INSTANCE_CONNECTION_NAME_READ=${INSTANCE_CONNECTION_NAME_READ},\
+            DB_IAM_USER=${DB_IAM_USER}
