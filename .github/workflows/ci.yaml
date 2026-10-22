@@ -89,6 +89,4 @@ jobs:
             --region europe-west1 \
             --service-account=${CLOUD_RUN_SERVICE_ACCOUNT_EMAIL} \
             --update-secrets=JWT_SECRET=jwt-secret:latest \
-            --set-env-vars=INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME},\
-            INSTANCE_CONNECTION_NAME_READ=${INSTANCE_CONNECTION_NAME_READ},\
-            DB_IAM_USER=${DB_IAM_USER}
+            --set-env-vars=INSTANCE_CONNECTION_NAME=${INSTANCE_CONNECTION_NAME},INSTANCE_CONNECTION_NAME_READ=${INSTANCE_CONNECTION_NAME_READ},DB_IAM_USER=${DB_IAM_USER}
