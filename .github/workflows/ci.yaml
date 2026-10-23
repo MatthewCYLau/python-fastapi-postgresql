@@ -9,6 +9,12 @@ on:
       - "v*"
     paths:
       - "api/**"
+  pull_request:
+    branches:
+      - master
+    paths:
+      - "api/**"
+      - "requirements.txt" # Ensure Dependabot PRs modifying dependencies trigger the test suite
 env:
   PROJECT_ID: open-source-apps-001
   IMAGE: python-fastapi-postgresql
