@@ -21,6 +21,7 @@ jobs:
           fetch-depth: 0
       - name: Set up Cloud SDK
         uses: "google-github-actions/auth@v2"
+        id: "auth"
         with:
           workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
           service_account: ${{ secrets.SA_EMAIL }}
