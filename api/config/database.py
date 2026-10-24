@@ -39,7 +39,9 @@ def connect_with_connector_auto_iam_authn(
         )
         return conn
 
-    pool = sqlalchemy.create_engine("postgresql+pg8000://", creator=getconn)
+    pool = sqlalchemy.create_engine(
+        "postgresql+pg8000://", creator=getconn, pool_size=5, pool_pre_ping=True
+    )
     return pool
 
 
