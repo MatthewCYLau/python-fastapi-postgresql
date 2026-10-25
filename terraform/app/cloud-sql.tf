@@ -1,5 +1,8 @@
 resource "random_id" "db_name_suffix" {
   byte_length = 4
+  lifecycle {
+    prevent_destroy = true
+  }
 }
 
 resource "google_sql_database_instance" "this" {
