@@ -22,8 +22,8 @@ env:
   CLOUD_RUN_SERVICE_STAGING: python-fastapi-postgresql
   CLOUD_RUN_SERVICE_PROD: python-fastapi-postgresql-prod # Update with your actual production service name
   CLOUD_RUN_SERVICE_ACCOUNT_EMAIL: fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
-  INSTANCE_CONNECTION_NAME: open-source-apps-001:europe-west1:python-fastapi-1bc61faa
-  INSTANCE_CONNECTION_NAME_READ: open-source-apps-001:europe-west1:python-fastapi-replica-1bc61faa
+  INSTANCE_CONNECTION_NAME: open-source-apps-001:europe-west1:python-fastapi-c327e3e0
+  INSTANCE_CONNECTION_NAME_READ: open-source-apps-001:europe-west1:python-fastapi-replica-c327e3e0
   DB_IAM_USER: fastapi-db-iam-user@open-source-apps-001.iam
 
 jobs:
