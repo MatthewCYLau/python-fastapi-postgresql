@@ -2,6 +2,7 @@
 
 version: 2
 updates:
+  # 1. Python Dependencies
   - package-ecosystem: "pip"
     directory: "/"
     schedule:
@@ -9,3 +10,45 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/London"
+    open-pull-requests-limit: 5
+    labels:
+      - "dependencies"
+      - "python"
+    commit:
+      prefix: "chore(deps): "
+
+  # 2. GitHub Actions CI/CD Workflows
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:30"
+      timezone: "Europe/London"
+    labels:
+      - "ci-cd"
+      - "dependencies"
+
+  # 3. Container Images (Docker)
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:00"
+      timezone: "Europe/London"
+    labels:
+      - "docker"
+      - "dependencies"
+
+  # 4. Infrastructure as Code (Terraform Providers & Modules)
+  - package-ecosystem: "terraform"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "07:30"
+      timezone: "Europe/London"
+    labels:
+      - "terraform"
+      - "infrastructure"
