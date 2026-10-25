@@ -35,7 +35,7 @@ jobs:
         env:
           TF_VAR_sql_user_password: ${{ secrets.DB_PASSWORD }}
       - name: Upload Destroy Plan Artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: destroy-tfplan
           path: ${{ env.TF_APP_WORKDIR }}/terraform-destroy.tfplan
