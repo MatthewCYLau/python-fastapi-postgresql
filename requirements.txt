@@ -9,7 +9,7 @@ APScheduler==3.11.1
 asn1crypto==1.5.1
 attrs==25.3.0
 bcrypt==4.3.0
-cachetools==5.5.2
+cachetools==7.2.4
 certifi==2026.10.19
 cffi==2.0.0
 charset-normalizer==3.4.3
