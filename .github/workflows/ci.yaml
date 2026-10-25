@@ -15,6 +15,11 @@ on:
     paths:
       - "api/**"
       - "requirements.txt" # Ensure Dependabot PRs modifying dependencies trigger the test suite
+
+permissions:
+  contents: "read"
+  id-token: "write"
+
 env:
   PROJECT_ID: open-source-apps-001
   IMAGE: python-fastapi-postgresql
@@ -29,9 +34,6 @@ env:
 jobs:
   test:
     uses: ./.github/workflows/reusable-test.yml
-    permissions:
-      contents: "read"
-      id-token: "write"
     secrets:
       PROVIDER_NAME: ${{ secrets.PROVIDER_NAME }}
       SA_EMAIL: ${{ secrets.SA_EMAIL }}
