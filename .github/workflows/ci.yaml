@@ -56,8 +56,10 @@ jobs:
           fi
       - name: Set up Cloud SDK
         uses: "google-github-actions/auth@v2"
+        id: "auth"
         with:
-          credentials_json: "${{ secrets.GCP_SERVICE_ACCOUNT_KEY }}"
+          workload_identity_provider: ${{ secrets.PROVIDER_NAME }}
+          service_account: ${{ secrets.SA_EMAIL }}
       - name: Authenticate with Container Registry
         run: |
           gcloud --quiet auth configure-docker
