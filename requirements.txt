@@ -39,7 +39,7 @@ MarkupSafe==3.0.2
 multidict==6.6.4
 numpy==2.4.4
 packaging==25.0
-pandas==3.0.2
+pandas==3.1.0
 passlib==1.7.4
 pg8000==1.31.5
 pluggy==1.6.0
