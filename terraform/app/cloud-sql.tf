@@ -105,7 +105,7 @@ resource "null_resource" "execute_access_sql" {
 }
 
 resource "google_sql_database_instance" "replica" {
-  name                 = "python-fastapi-replica-${random_id.db_name_suffix.hex}"
+  name                 = "python-fastapi-replica-${local.db_name_suffix}"
   region               = var.region
   database_version     = "POSTGRES_15"
   master_instance_name = google_sql_database_instance.this.name
