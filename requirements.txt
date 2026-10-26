@@ -17,7 +17,7 @@ click==8.2.1
 cloud-sql-python-connector==1.18.4
 coverage==7.9.2
 cryptography==50.0.0
-dnspython==2.7.0
+dnspython==2.9.0
 email_validator==2.2.0
 fastapi==0.116.1
 frozenlist==1.7.0
