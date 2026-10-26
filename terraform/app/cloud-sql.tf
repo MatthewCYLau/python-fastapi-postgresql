@@ -3,7 +3,7 @@ resource "random_id" "db_name_suffix" {
 }
 
 resource "google_sql_database_instance" "this" {
-  name   = "python-fastapi-${random_id.db_name_suffix.hex}"
+  name   = "python-fastapi-${local.db_name_suffix}"
   region = var.region
 
   # depends_on = [google_service_networking_connection.private_vpc_connection]
