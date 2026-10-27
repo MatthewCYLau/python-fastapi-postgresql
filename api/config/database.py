@@ -64,8 +64,11 @@ def get_database_engine(is_read_only: bool = False):
 
         @event.listens_for(engine, "connect")
         def set_search_path(dbapi_connection, connection_record):
-            with dbapi_connection.cursor() as cursor:
+            cursor = dbapi_connection.cursor()
+            try:
                 cursor.execute("SET search_path TO app_schema, public;")
+            finally:
+                cursor.close()
 
     return engine
 
