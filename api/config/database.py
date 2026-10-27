@@ -2,7 +2,7 @@ import os
 from google.cloud.sql.connector import Connector, IPTypes
 import pg8000
 import sqlalchemy
-from sqlalchemy import StaticPool, create_engine
+from sqlalchemy import StaticPool, create_engine, event
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
@@ -59,6 +59,14 @@ def get_database_engine(is_read_only: bool = False):
     else:
         url = SQLALCHEMY_READ_DATABASE_URL if is_read_only else SQLALCHEMY_DATABASE_URL
         engine = create_engine(url)
+
+    if not os.getenv("SQLITE_IN_MEMORY_DB"):
+
+        @event.listens_for(engine, "connect")
+        def set_search_path(dbapi_connection, connection_record):
+            with dbapi_connection.cursor() as cursor:
+                cursor.execute("SET search_path TO app_schema, public;")
+
     return engine
 
 
