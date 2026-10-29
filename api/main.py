@@ -9,6 +9,8 @@ import pandas as pd
 
 from fastapi.responses import HTMLResponse
 import pytz
+from sqlalchemy import inspect, text
+from sqlalchemy.orm import Session
 
 from api.metrics.metrics import (
     update_system_metrics,
@@ -18,7 +20,7 @@ from api.resource.html import html
 
 load_dotenv(".env")
 
-from fastapi import FastAPI, Response, WebSocket
+from fastapi import Depends, FastAPI, Response, WebSocket
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from api.config.logging import setup_logging, get_logger
@@ -28,7 +30,7 @@ from api.order.views import router as order_router
 from api.auth.views import router as auth_router
 from api.comment.views import router as comment_router
 from api.transaction.views import router as transaction_router
-from api.config.database import Base, get_database_engine
+from api.config.database import Base, get_database_engine, get_session
 from prometheus_client import (
     generate_latest,
     CONTENT_TYPE_LATEST,
@@ -134,3 +136,28 @@ def get_products_dataframe():
             logger.info(f"Product {product_name} has price {product_price}")
 
     return "Done"
+
+
+@app.get("/db-metadata")
+def get_database_metadata(session: Session = Depends(get_session)):
+    try:
+        query = text("SELECT current_database(), current_schema(), version();")
+        row = session.execute(query).fetchone()
+        current_db, current_schema, pg_version = row
+
+        search_path = session.execute(text("SHOW search_path;")).scalar()
+
+        engine = get_database_engine(is_read_only=True)
+        inspector = inspect(engine)
+        tables = inspector.get_table_names()
+
+        return {
+            "status": "success",
+            "database": current_db,
+            "current_schema": current_schema,
+            "search_path": search_path,
+            "postgresql_version": pg_version,
+            "tables": tables,
+        }
+    except Exception as e:
+        return {"status": "error", "message": str(e)}
