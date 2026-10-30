@@ -13,6 +13,7 @@ class User(Base):
     """User model."""
 
     __tablename__ = "users"
+    __table_args__ = {"schema": "catalog"}
 
     id: Mapped[UUID] = mapped_column(
         UUID(as_uuid=True), primary_key=True, default=uuid.uuid4, index=True
