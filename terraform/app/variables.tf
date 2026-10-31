@@ -20,3 +20,6 @@ variable "resource_tags" {
     app = "python-fastapi",
   }
 }
+variable "cloud_run_service_name" {
+  default = "python-fastapi-postgresql"
+}

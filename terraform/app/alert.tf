@@ -118,3 +118,20 @@ resource "google_monitoring_alert_policy" "cloud_sql_uptime" {
     auto_close = "1800s" # Increased to meet the 30-minute minimum API requirement
   }
 }
+
+resource "google_logging_metric" "cloud_run_error_count" {
+  name        = "cloudrun-${var.cloud_run_service_name}-error-count"
+  description = "Counts ERROR or higher severity logs for Cloud Run service ${var.cloud_run_service_name}"
+
+  filter = <<-EOT
+    resource.type="cloud_run_revision"
+    resource.labels.service_name="${var.cloud_run_service_name}"
+    severity>=ERROR
+  EOT
+
+  metric_descriptor {
+    metric_kind = "DELTA"
+    value_type  = "INT64"
+    unit        = "1"
+  }
+}
