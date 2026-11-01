@@ -141,13 +141,13 @@ resource "google_monitoring_alert_policy" "cloud_run_error_alert" {
   combiner     = "OR"
 
   conditions {
-    display_name = "Error count > ${var.error_threshold_count} in ${var.window_duration_minutes}m"
+    display_name = "Error count > 5 in 5m"
 
     condition_threshold {
       filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.cloud_run_error_count.name}\" resource.type=\"cloud_run_revision\""
-      duration        = "${var.window_duration_minutes * 60}s"
+      duration        = "300s"
       comparison      = "COMPARISON_GT"
-      threshold_value = var.error_threshold_count
+      threshold_value = 5
 
       aggregations {
         alignment_period     = "60s"
