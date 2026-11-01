@@ -135,3 +135,38 @@ resource "google_logging_metric" "cloud_run_error_count" {
     unit        = "1"
   }
 }
+
+resource "google_monitoring_alert_policy" "cloud_run_error_alert" {
+  display_name = "Cloud Run Error Rate High: ${var.cloud_run_service_name}"
+  combiner     = "OR"
+
+  conditions {
+    display_name = "Error count > ${var.error_threshold_count} in ${var.window_duration_minutes}m"
+
+    condition_threshold {
+      filter          = "metric.type=\"logging.googleapis.com/user/${google_logging_metric.cloud_run_error_count.name}\" resource.type=\"cloud_run_revision\""
+      duration        = "${var.window_duration_minutes * 60}s"
+      comparison      = "COMPARISON_GT"
+      threshold_value = var.error_threshold_count
+
+      aggregations {
+        alignment_period     = "60s"
+        per_series_aligner   = "ALIGN_SUM"
+        cross_series_reducer = "REDUCE_SUM"
+        group_by_fields      = ["resource.label.service_name"]
+      }
+
+      trigger {
+        count = 10
+      }
+    }
+  }
+
+  notification_channels = [
+    google_monitoring_notification_channel.email.name
+  ]
+
+  alert_strategy {
+    auto_close = "300s"
+  }
+}
