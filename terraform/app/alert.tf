@@ -167,6 +167,6 @@ resource "google_monitoring_alert_policy" "cloud_run_error_alert" {
   ]
 
   alert_strategy {
-    auto_close = "300s"
+    auto_close = "1800s"
   }
 }
