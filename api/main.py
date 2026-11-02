@@ -30,6 +30,7 @@ from api.order.views import router as order_router
 from api.auth.views import router as auth_router
 from api.comment.views import router as comment_router
 from api.transaction.views import router as transaction_router
+from api.queue.views import router as queue_router
 from api.config.database import Base, get_database_engine, get_session
 from prometheus_client import (
     generate_latest,
@@ -70,6 +71,8 @@ app.include_router(order_router)
 app.include_router(auth_router)
 app.include_router(comment_router)
 app.include_router(transaction_router)
+app.include_router(queue_router)
+
 
 app.add_middleware(MetricsMiddleware)
 app.add_middleware(RequestHeaderMiddleware)
