@@ -11,7 +11,7 @@ attrs==25.3.0
 bcrypt==4.3.0
 cachetools==5.5.2
 certifi==2026.10.19
-cffi==2.0.0
+cffi==2.1.1
 charset-normalizer==3.4.3
 click==8.2.1
 cloud-sql-python-connector==1.18.4
