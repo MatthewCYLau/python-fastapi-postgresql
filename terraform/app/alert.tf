@@ -73,7 +73,7 @@ resource "google_monitoring_alert_policy" "cloud_sql_high_connections" {
       filter          = "resource.type = \"cloudsql_database\" AND metric.type = \"cloudsql.googleapis.com/database/postgresql/num_backends\" AND resource.label.database_id = \"${google_sql_database_instance.this.project}:${google_sql_database_instance.this.name}\""
       duration        = "300s"
       comparison      = "COMPARISON_GT"
-      threshold_value = 80 # Adjust based on your max_connections limit (e.g., 80 connections)
+      threshold_value = 70 # Adjust based on your max_connections limit (e.g., 70 connections)
 
       aggregations {
         alignment_period   = "60s"
