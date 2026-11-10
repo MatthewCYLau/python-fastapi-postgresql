@@ -63,7 +63,7 @@ resource "google_project_iam_member" "app_cloud_sql_user_read_replica" {
 }
 
 resource "google_secret_manager_secret_iam_member" "jwt_secret_access" {
-  secret_id = "projects/620656388728/secrets/jwt-secret"
+  secret_id = "projects/${data.google_project.project.number}/secrets/jwt-secret"
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.cloud_sql_instance_user.email}"
 }
