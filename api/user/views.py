@@ -2,6 +2,7 @@ import uuid
 from fastapi import APIRouter, BackgroundTasks, Depends, status
 from sqlalchemy.orm import Session
 
+from api.config.constants import CLOUD_STORAGE_BUCKET_NAME
 from api.config.database import get_session
 from api.config.logging import get_logger
 from api.user.schemas import UserCreate, UserResponse, UserUpdate
@@ -28,7 +29,7 @@ def create_user(user_data: UserCreate, session=Depends(get_session)) -> UserResp
 
 def export_csv():
     cloud_storage_connector = CloudStorageConnector(
-        bucket_name="python-fastapi-assets-uniform-access"
+        bucket_name=CLOUD_STORAGE_BUCKET_NAME
     )
     blob_public_url = cloud_storage_connector.upload_csv_file()
     logger.info(f"Export users to Cloud Storage CSV - {blob_public_url}")

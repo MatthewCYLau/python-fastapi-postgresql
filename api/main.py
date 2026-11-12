@@ -8,10 +8,12 @@ import pandas as pd
 
 
 from fastapi.responses import HTMLResponse
+from pydantic import BaseModel
 import pytz
 from sqlalchemy import inspect, text
 from sqlalchemy.orm import Session
 
+from api.config.constants import CLOUD_STORAGE_BUCKET_NAME
 from api.metrics.metrics import (
     update_system_metrics,
 )
@@ -20,7 +22,7 @@ from api.resource.html import html
 
 load_dotenv(".env")
 
-from fastapi import Depends, FastAPI, Response, WebSocket
+from fastapi import Depends, FastAPI, HTTPException, Response, WebSocket
 from contextlib import asynccontextmanager
 from apscheduler.schedulers.background import BackgroundScheduler
 from api.config.logging import setup_logging, get_logger
@@ -170,3 +172,46 @@ def get_database_metadata(session: Session = Depends(get_session)):
         }
     except Exception as e:
         return {"status": "error", "message": str(e)}
+
+
+@app.post("/products-gcs-parquet")
+def generate_products_gcs_parquet():
+    engine = get_database_engine()
+    destination_blob_name = "processed_data/products.parquet"
+    bucket_name = CLOUD_STORAGE_BUCKET_NAME
+
+    with engine.connect() as conn:
+        df = pd.read_sql(query, conn.connection)
+        gcs_path = f"gs://{bucket_name}/{destination_blob_name}"
+        df.to_parquet(gcs_path, engine="pyarrow", index=False)
+
+        logger.info(f"Successfully uploaded Parquet artifact to {gcs_path}")
+
+    return "Ok"
+
+
+class ParquetRequest(BaseModel):
+    blob_name: str
+
+
+@app.post("/parquet-dataframe")
+def get_parquet_dataframe(request: ParquetRequest):
+    bucket_name = CLOUD_STORAGE_BUCKET_NAME
+    gcs_path = f"gs://{bucket_name}/{request.blob_name}"
+
+    try:
+        df = pd.read_parquet(gcs_path, engine="pyarrow")
+        logger.info(f"Successfully read Parquet file from {gcs_path} ({len(df)} rows)")
+
+        return {
+            "status": "success",
+            "blob_name": request.blob_name,
+            "row_count": len(df),
+            "data": df.to_dict(orient="records"),
+        }
+
+    except Exception as e:
+        logger.error(f"Error reading Parquet from GCS: {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Failed to read Parquet file: {str(e)}"
+        )
