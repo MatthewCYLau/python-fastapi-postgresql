@@ -1,11 +1,12 @@
 import uuid
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, HTTPException, status
+import pandas as pd
 from sqlalchemy.orm import Session
-
-from api.config.database import get_session, get_read_only_session
+from api.config.constants import CLOUD_STORAGE_BUCKET_NAME
+from api.config.database import get_database_engine, get_session, get_read_only_session
 from api.config.logging import get_logger
 from api.product.repository import ProductRepository
-from api.product.schemas import ProductBase, ProductResponse
+from api.product.schemas import ParquetRequest, ProductBase, ProductResponse
 from api.product.service import ProductService
 
 logger = get_logger(__name__)
@@ -92,3 +93,43 @@ def delete_product(
 ):
     logger.info(f"Deleting product: {product_id}")
     service.delete_product_by_id(product_id)
+
+
+@router.post("/gcs-parquet")
+def generate_products_gcs_parquet():
+    engine = get_database_engine()
+    destination_blob_name = "processed_data/products.parquet"
+    bucket_name = CLOUD_STORAGE_BUCKET_NAME
+
+    with engine.connect() as conn:
+        query = "SELECT * FROM products;"
+        df = pd.read_sql(query, conn.connection)
+        gcs_path = f"gs://{bucket_name}/{destination_blob_name}"
+        df.to_parquet(gcs_path, engine="pyarrow", index=False)
+
+        logger.info(f"Successfully uploaded Parquet artifact to {gcs_path}")
+
+    return "Ok"
+
+
+@router.post("/df-from-parquet")
+def get_parquet_dataframe_from_parquet(request: ParquetRequest):
+    bucket_name = CLOUD_STORAGE_BUCKET_NAME
+    gcs_path = f"gs://{bucket_name}/{request.blob_name}"
+
+    try:
+        df = pd.read_parquet(gcs_path, engine="pyarrow")
+        logger.info(f"Successfully read Parquet file from {gcs_path} ({len(df)} rows)")
+
+        return {
+            "status": "success",
+            "blob_name": request.blob_name,
+            "row_count": len(df),
+            "data": df.to_dict(orient="records"),
+        }
+
+    except Exception as e:
+        logger.error(f"Error reading Parquet from GCS: {e}")
+        raise HTTPException(
+            status_code=400, detail=f"Failed to read Parquet file: {str(e)}"
+        )
