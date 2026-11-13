@@ -87,6 +87,15 @@ fastapi-db-iam-user@open-source-apps-001.iam.gserviceaccount.com
 curl -s -o /dev/null -w "Total time: %{time_total} seconds\n" http://34.8.102.74
 ```
 
+## Example GKE container log query
+
+```
+resource.type="k8s_container"
+AND resource.labels.pod_name: "python-fastapi-postgresql"
+AND resource.labels.container_name="python-fastapi-postgresql"
+AND severity="INFO"
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
