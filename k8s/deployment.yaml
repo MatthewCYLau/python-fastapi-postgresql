@@ -25,6 +25,9 @@ spec:
               value: python_fastapi
             - name: DB_HOST
               value: 127.0.0.1
+            # Point read-only sessions to the replica port exposed by the proxy sidecar
+            - name: SQLALCHEMY_READ_DATABASE_URL
+              value: postgresql://fastapi-db-iam-user@open-source-apps-001.iam:@127.0.0.1:5433/python_fastapi
           volumeMounts:
             - name: data-volume
               mountPath: /app/data
@@ -39,12 +42,11 @@ spec:
           args:
             - "--auto-iam-authn"
             - "--structured-logs"
-            - "--port=5432"
-            - "open-source-apps-001:europe-west1:python-fastapi-c327e3e0"
-            - "open-source-apps-001:europe-west1:python-fastapi-replica-c327e3e0"
+            - "open-source-apps-001:europe-west1:python-fastapi-c327e3e0?port=5432"
+            - "open-source-apps-001:europe-west1:python-fastapi-replica-c327e3e0?port=5433"
           securityContext:
             runAsNonRoot: true
           resources:
             requests:
-              memory: 1
-              cpu: 0.25
+              memory: "256Mi"
+              cpu: "250m"

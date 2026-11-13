@@ -2,7 +2,7 @@ import os
 from google.cloud.sql.connector import Connector, IPTypes
 import pg8000
 import sqlalchemy
-from sqlalchemy import StaticPool, create_engine, event
+from sqlalchemy import StaticPool, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
