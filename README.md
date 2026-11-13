@@ -96,6 +96,14 @@ AND resource.labels.container_name="python-fastapi-postgresql"
 AND severity="INFO"
 ```
 
+```
+resource.type="k8s_container"
+AND resource.labels.pod_name: "python-fastapi-postgresql"
+AND resource.labels.container_name="python-fastapi-postgresql"
+AND severity="INFO"
+AND jsonPayload.user_id="usr_02453"
+```
+
 ## Contributing
 
 Pull requests are welcome. For major changes, please open an issue first
