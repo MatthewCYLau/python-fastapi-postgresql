@@ -1,3 +1,4 @@
+import random
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 import pandas as pd
@@ -69,7 +70,14 @@ def get_products_dataframe():
             first_row = df.iloc[0]
             product_name = first_row["name"]
             product_price = first_row["price"]
-            logger.info(f"Product {product_name} has price {product_price}")
+
+            random_id = random.randint(1, 9999)
+            user_id = f"usr_{random_id:05d}"
+
+            logger.info(
+                f"Product {product_name} has price {product_price}",
+                extra={"user_id": user_id},
+            )
 
             popular_products_df = df[df["name"].isin(POPULAR_PRODUCTS)]
 
