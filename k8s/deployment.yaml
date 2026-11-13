@@ -40,7 +40,8 @@ spec:
             - "--auto-iam-authn"
             - "--structured-logs"
             - "--port=5432"
-            - "open-source-apps-001:europe-west1:python-fastapi-eeb5f863"
+            - "open-source-apps-001:europe-west1:python-fastapi-c327e3e0"
+            - "open-source-apps-001:europe-west1:python-fastapi-replica-c327e3e0"
           securityContext:
             runAsNonRoot: true
           resources:
