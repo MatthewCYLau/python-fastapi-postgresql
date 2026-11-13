@@ -124,29 +124,6 @@ def write_text():
     return "Done"
 
 
-query = "SELECT * FROM products;"
-POPULAR_PRODUCTS = ["Product one"]
-
-
-@app.get("/products-df")
-def get_products_dataframe():
-    engine = get_database_engine()
-    with engine.connect() as conn:
-        result = pd.read_sql(query, conn.connection, chunksize=1)
-        for df in result:
-            first_row = df.iloc[0]
-            product_name = first_row["name"]
-            product_price = first_row["price"]
-            logger.info(f"Product {product_name} has price {product_price}")
-
-            popular_products_df = df[df["name"].isin(POPULAR_PRODUCTS)]
-
-            if not popular_products_df.empty:
-                logger.info(f"Popular product {product_name} found!")
-
-    return "Done"
-
-
 @app.get("/db-metadata")
 def get_database_metadata(session: Session = Depends(get_session)):
     try:

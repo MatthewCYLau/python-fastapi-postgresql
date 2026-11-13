@@ -8,11 +8,15 @@ from api.config.logging import get_logger
 from api.product.repository import ProductRepository
 from api.product.schemas import ParquetRequest, ProductBase, ProductResponse
 from api.product.service import ProductService
+from api.utils.file_util import generate_filename_suffix
 
 logger = get_logger(__name__)
 
 
 router = APIRouter(prefix="/api/v1/products", tags=["products"])
+
+query = "SELECT * FROM products;"
+POPULAR_PRODUCTS = ["Product one"]
 
 
 def get_product_service(session: Session = Depends(get_session)) -> ProductService:
@@ -95,21 +99,47 @@ def delete_product(
     service.delete_product_by_id(product_id)
 
 
+@router.get("/dataframe")
+def get_products_dataframe():
+    engine = get_database_engine()
+    with engine.connect() as conn:
+        result = pd.read_sql(query, conn.connection, chunksize=1)
+        for df in result:
+            if df.empty:
+                continue
+            first_row = df.iloc[0]
+            product_name = first_row["name"]
+            product_price = first_row["price"]
+            logger.info(f"Product {product_name} has price {product_price}")
+
+            popular_products_df = df[df["name"].isin(POPULAR_PRODUCTS)]
+
+            if not popular_products_df.empty:
+                logger.info(f"Popular product {product_name} found!")
+
+    return "Done"
+
+
 @router.post("/gcs-parquet")
 def generate_products_gcs_parquet():
     engine = get_database_engine()
-    destination_blob_name = "processed_data/products.parquet"
     bucket_name = CLOUD_STORAGE_BUCKET_NAME
+    filename_suffix = generate_filename_suffix()
+
+    destination_blob_name = f"processed_data/products_{filename_suffix}.parquet"
 
     with engine.connect() as conn:
-        query = "SELECT * FROM products;"
         df = pd.read_sql(query, conn.connection)
         gcs_path = f"gs://{bucket_name}/{destination_blob_name}"
-        df.to_parquet(gcs_path, engine="pyarrow", index=False)
 
+        df.to_parquet(gcs_path, engine="pyarrow", index=False)
         logger.info(f"Successfully uploaded Parquet artifact to {gcs_path}")
 
-    return "Ok"
+    return {
+        "status": "success",
+        "blob_name": destination_blob_name,
+        "gcs_path": gcs_path,
+    }
 
 
 @router.post("/df-from-parquet")
@@ -128,8 +158,14 @@ def get_parquet_dataframe_from_parquet(request: ParquetRequest):
             "data": df.to_dict(orient="records"),
         }
 
-    except Exception as e:
-        logger.error(f"Error reading Parquet from GCS: {e}")
+    except FileNotFoundError as e:
+        logger.error(f"Parquet file not found in GCS: {gcs_path} - {e}")
         raise HTTPException(
-            status_code=400, detail=f"Failed to read Parquet file: {str(e)}"
+            status_code=404, detail=f"Parquet file not found: {request.blob_name}"
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error reading Parquet from GCS: {e}")
+        raise HTTPException(
+            status_code=500,
+            detail="An error occurred while reading the Parquet file from cloud storage.",
         )
