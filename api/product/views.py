@@ -66,7 +66,8 @@ def get_products_dataframe():
         result = pd.read_sql(query, conn.connection, chunksize=1)
         for df in result:
             if df.empty:
-                continue
+                raise HTTPException(status_code=404, detail="Products not found")
+
             first_row = df.iloc[0]
             product_name = first_row["name"]
             product_price = first_row["price"]
@@ -79,12 +80,15 @@ def get_products_dataframe():
                 extra={"user_id": user_id},
             )
 
+            df = df.filter(like="name")
             popular_products_df = df[df["name"].isin(POPULAR_PRODUCTS)]
 
             if not popular_products_df.empty:
                 logger.info(f"Popular product {product_name} found!")
-
-    return "Done"
+            return {
+                "status": "success",
+                "data": df.to_dict(orient="records"),
+            }
 
 
 @router.get("/{product_id}", response_model=ProductResponse)
