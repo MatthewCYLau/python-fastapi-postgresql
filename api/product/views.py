@@ -1,5 +1,6 @@
 import random
 import uuid
+from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 import pandas as pd
 from sqlalchemy.orm import Session
@@ -10,6 +11,7 @@ from api.product.repository import ProductRepository
 from api.product.schemas import ParquetRequest, ProductBase, ProductResponse
 from api.product.service import ProductService
 from api.utils.file_util import generate_filename_suffix
+from api.config.security import get_current_user
 
 logger = get_logger(__name__)
 
@@ -60,7 +62,11 @@ def get_all_products(
 
 
 @router.get("/dataframe")
-def get_products_dataframe():
+def get_products_dataframe(current_user: Annotated[any, Depends(get_current_user)]):
+
+    user_id = getattr(current_user, "id", None) or current_user.get("id")
+    logger.info(f"User ID: {user_id}")
+
     engine = get_database_engine()
     with engine.connect() as conn:
         result = pd.read_sql(query, conn.connection, chunksize=1)
