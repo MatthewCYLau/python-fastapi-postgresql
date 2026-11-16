@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: python-fastapi-postgresql
+spec:
+  selector:
+    matchLabels:
+      app: python-fastapi-postgresql
+  template:
+    metadata:
+      labels:
+        app: python-fastapi-postgresql
+    spec:
+      serviceAccountName: python-fastapi-postgresql-sa
+      nodeSelector:
+        np: app
+      tolerations:
+        - key: "np"
+          operator: "Equal"
+          value: "app"
+          effect: "NoSchedule"
+      containers:
+        - name: python-fastapi-postgresql
+          image: gcr.io/open-source-apps-001/python-fastapi-postgresql:latest
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_USER
+              value: fastapi-db-iam-user@open-source-apps-001.iam
+            - name: DB_NAME
+              value: python_fastapi
+            - name: DB_HOST
+              value: 127.0.0.1
+          volumeMounts:
+            - name: data-volume
+              mountPath: /app/data
+      volumes:
+        - name: data-volume
+          persistentVolumeClaim:
+            claimName: python-app-data
+      initContainers:
+        - name: cloud-sql-proxy
+          restartPolicy: Always
+          image: gcr.io/cloud-sql-connectors/cloud-sql-proxy:2.14.1
+          args:
+            - "--auto-iam-authn"
+            - "--structured-logs"
+            - "--private-ip"
+            - "open-source-apps-001:europe-west2:python-fastapi-c327e3e0?port=5432"
+          securityContext:
+            runAsNonRoot: true
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: python-fastapi-postgresql
+spec:
+  type: ClusterIP # For GKE Ingress use NodePort
+  selector:
+    app: python-fastapi-postgresql
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
