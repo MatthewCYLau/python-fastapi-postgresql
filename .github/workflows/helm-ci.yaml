@@ -24,7 +24,7 @@ permissions:
 env:
   PROJECT_ID: open-source-apps-001
   GOOGLE_ARTIFACT_REGISTRY_LOCATION: europe-west1
-  GOOGLE_ARTIFACT_REGISTRY_REPO: helm-charts
+  GOOGLE_ARTIFACT_REGISTRY_REPO: gcp-helm-charts
   CHART_DIR: ./helm-chart
 
 jobs:
