@@ -10,6 +10,7 @@ spec:
     metadata:
       labels:
         app: python-fastapi-postgresql
+        app.kubernetes.io/name: python-fastapi-postgresql
     spec:
       serviceAccountName: python-fastapi-postgresql-sa
       nodeSelector:
@@ -23,7 +24,10 @@ spec:
         - name: python-fastapi-postgresql
           image: gcr.io/open-source-apps-001/python-fastapi-postgresql:latest
           ports:
-            - containerPort: 8080
+            - name: http
+              containerPort: 8080
+            - name: metrics
+              containerPort: 8080
           env:
             - name: DB_USER
               value: fastapi-db-iam-user@open-source-apps-001.iam
