@@ -1,0 +1,12 @@
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: python-fastapi-metrics
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: python-fastapi-postgresql
+  endpoints:
+    - port: metrics
+      path: /metrics
+      interval: 30s
