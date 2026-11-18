@@ -110,6 +110,8 @@ AND jsonPayload.user_id="usr_02453"
 kubernetes_io:container_memory_used_bytes{monitored_resource="k8s_container", namespace_name="dev", container_name="python-fastapi-postgresql"} / 1024 / 1024 / 1024
 kubernetes_io:container_memory_request_utilization{namespace_name="dev"} * 100
 sum by (path) (rate(http_request_total[5m]))
+sum(rate(container_cpu_usage_seconds_total{container!="", image!="", namespace="dev" }[5m])) by (pod, namespace)
+{"__name__"="kubernetes_io:container_cpu_request_cores", "namespace_name" ="dev"}
 ```
 
 ## Install helm chart as release into private GKE cluster
@@ -125,7 +127,7 @@ HTTPS_PROXY=localhost:8888 helm upgrade --install gcp-app-release \
     --namespace dev
 
 HTTPS_PROXY=localhost:8888 kubectl create secret generic jwt-secret \
-  --from-literal=jwt-secret='<YOUR-SECRET' \
+  --from-literal=jwt-secret='<YOUR-SECRET>' \
   --dry-run=client -o yaml -n dev | HTTPS_PROXY=localhost:8888 kubectl apply -f -
 ```
 
