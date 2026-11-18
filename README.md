@@ -104,6 +104,14 @@ AND severity="INFO"
 AND jsonPayload.user_id="usr_02453"
 ```
 
+## Example Prometheus Query Language (PromQL)
+
+```
+kubernetes_io:container_memory_used_bytes{monitored_resource="k8s_container", namespace_name="dev", container_name="python-fastapi-postgresql"} / 1024 / 1024 / 1024
+kubernetes_io:container_memory_request_utilization{namespace_name="dev"} * 100
+sum by (path) (rate(http_request_total[5m]))
+```
+
 ## Install helm chart as release into private GKE cluster
 
 ```
@@ -113,7 +121,7 @@ gcloud auth print-access-token | helm registry login europe-west1-docker.pkg.dev
 
 HTTPS_PROXY=localhost:8888 helm upgrade --install gcp-app-release \
     oci://europe-west1-docker.pkg.dev/open-source-apps-001/gcp-helm-charts/gcp-helm-chart \
-    --version 2.0.0 \
+    --version 2.1.0 \
     --namespace dev
 
 HTTPS_PROXY=localhost:8888 kubectl create secret generic jwt-secret \
