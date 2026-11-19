@@ -18,7 +18,6 @@ from api.order.service import OrderService
 from api.user.schemas import UserResponse
 from api.utils.date_util import validate_date_string
 
-
 logger = get_logger(__name__)
 
 
@@ -54,6 +53,17 @@ async def get_all_orders(
     try:
         orders = OrderService(session).get_all_orders(startDate, endDate)
         logger.info(f"Retrieved {len(orders)} orders")
+
+        order_costs = [i.total_cost for i in orders]
+
+        order_stats = {
+            "order_count": (n := len(order_costs)),
+            "order_costs_total": (total := sum(order_costs)),
+            "order_costs_mean": total / n,
+        }
+
+        logger.info(order_stats)
+
         return orders
     except Exception as e:
         logger.error(f"Failed to fetch orders: {str(e)}")
