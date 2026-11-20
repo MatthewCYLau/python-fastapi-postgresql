@@ -7,6 +7,7 @@ from api.auth.views import get_current_user
 from api.config.database import get_session
 from api.config.exception import BadRequestException
 from api.config.logging import get_logger
+from api.metrics.metrics import NEW_ORDERS_TOTAL
 from api.order.repository import OrderRepository
 from api.order.schemas import (
     OrderBase,
@@ -35,6 +36,8 @@ def create_order(order_data: OrderBase, session=Depends(get_session)):
     logger.info(
         f"Registering order for user ID {order_data.user_id} and product ID {order_data.product_id}"
     )
+
+    NEW_ORDERS_TOTAL.labels(quantity=order_data.quantity, status="new").inc()
     return OrderService(session).create_order(order_data)
 
 
