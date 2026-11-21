@@ -5,7 +5,6 @@ from api.product.schemas import ProductResponse
 
 
 class OrderBase(BaseModel):
-    user_id: uuid.UUID
     product_id: uuid.UUID
     quantity: int
 

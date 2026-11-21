@@ -15,10 +15,10 @@ class OrderRepository:
     def __init__(self, session):
         self.session = session
 
-    def create(self, order_data, total_cost: float) -> Order:
+    def create(self, order_data, user_id, total_cost: float) -> Order:
 
         order = Order(
-            user_id=order_data.user_id,
+            user_id=user_id,
             product_id=order_data.product_id,
             quantity=order_data.quantity,
             total_cost=total_cost,

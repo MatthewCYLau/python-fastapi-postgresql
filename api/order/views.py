@@ -31,14 +31,19 @@ def get_order_service(session: Session = Depends(get_session)) -> OrderService:
 
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_order(order_data: OrderBase, session=Depends(get_session)):
+def create_order(
+    order_data: OrderBase,
+    current_user: Annotated[any, Depends(get_current_user)],
+    session=Depends(get_session),
+):
     """Register a new order."""
+    user_id = getattr(current_user, "id", None) or current_user.get("id")
     logger.info(
-        f"Registering order for user ID {order_data.user_id} and product ID {order_data.product_id}"
+        f"Registering order for user ID {user_id} and product ID {order_data.product_id}"
     )
 
     NEW_ORDERS_TOTAL.labels(quantity=order_data.quantity, status="new").inc()
-    return OrderService(session).create_order(order_data)
+    return OrderService(session).create_order(order_data, user_id)
 
 
 @router.get("/", response_model=list[OrderResponse])

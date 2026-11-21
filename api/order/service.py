@@ -19,9 +19,9 @@ class OrderService:
         self.session = session
         self.repository = OrderRepository(session)
 
-    def create_order(self, order_data: OrderBase) -> Order:
+    def create_order(self, order_data: OrderBase, user_id) -> Order:
 
-        user = UserService(self.session).get_user_by_id(order_data.user_id)
+        user = UserService(self.session).get_user_by_id(user_id)
 
         product_repository = ProductRepository(self.session)
         product_service = ProductService(product_repository)
@@ -30,7 +30,7 @@ class OrderService:
 
         if user and product:
             total_cost = order_data.quantity * product.price
-            return self.repository.create(order_data, total_cost)
+            return self.repository.create(order_data, user_id, total_cost)
 
     def get_all_orders(self, startDate, endDate) -> list[OrderResponse]:
         orders = self.repository.get_all(startDate, endDate)
