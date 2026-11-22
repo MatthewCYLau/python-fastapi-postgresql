@@ -43,10 +43,15 @@ spec:
           volumeMounts:
             - name: data-volume
               mountPath: /app/data
+            - name: gcs-assets
+              mountPath: /mnt/gcs-assets
       volumes:
         - name: data-volume
           persistentVolumeClaim:
             claimName: python-app-data
+        - name: gcs-assets
+          persistentVolumeClaim:
+            claimName: gcsfuse-assets-pvc
       initContainers:
         - name: cloud-sql-proxy
           restartPolicy: Always

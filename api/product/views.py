@@ -3,6 +3,7 @@ import uuid
 from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 import pandas as pd
+from pathlib import Path
 from sqlalchemy.orm import Session
 from api.config.constants import CLOUD_STORAGE_BUCKET_NAME
 from api.config.database import get_database_engine, get_session, get_read_only_session
@@ -20,6 +21,7 @@ router = APIRouter(prefix="/api/v1/products", tags=["products"])
 
 query = "SELECT * FROM products;"
 POPULAR_PRODUCTS = ["Product one"]
+MOUNT_DIR = Path("/mnt/gcs-assets/exports")
 
 
 def get_product_service(session: Session = Depends(get_session)) -> ProductService:
@@ -152,6 +154,17 @@ def generate_products_gcs_parquet():
 
         df.to_parquet(gcs_path, engine="pyarrow", index=False)
         logger.info(f"Successfully uploaded Parquet artifact to {gcs_path}")
+
+        try:
+            file_path = MOUNT_DIR / destination_blob_name
+            df.to_parquet(file_path, engine="pyarrow", index=False)
+            logger.info(
+                f"Successfully uploaded Parquet artifact to blob fuse {gcs_path}"
+            )
+
+        except Exception as e:
+            logger.error(f"Failed to uploaded Parquet artifact to blob fuse: {str(e)}")
+            raise
 
     return {
         "status": "success",

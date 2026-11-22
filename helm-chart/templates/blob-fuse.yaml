@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: gcsfuse-assets-pv
+spec:
+  accessModes:
+    - ReadWriteMany
+  capacity:
+    storage: 1Gi
+  persistentVolumeReclaimPolicy: Retain
+  storageClassName: gcsfuse-static
+  csi:
+    driver: gcsfuse.csi.storage.gke.io
+    volumeHandle: python-fastapi-assets-uniform-access
+  mountOptions:
+    - implicit-dirs
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: gcsfuse-assets-pvc
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: gcsfuse-static
+  volumeName: gcsfuse-assets-pv
