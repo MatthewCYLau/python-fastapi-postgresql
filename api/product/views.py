@@ -157,6 +157,7 @@ def generate_products_gcs_parquet():
 
         try:
             file_path = MOUNT_DIR / destination_blob_name
+            file_path.parent.mkdir(parents=True, exist_ok=True)
             df.to_parquet(file_path, engine="pyarrow", index=False)
             logger.info(
                 f"Successfully uploaded Parquet artifact to blob fuse {gcs_path}"
