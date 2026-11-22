@@ -11,6 +11,8 @@ spec:
       labels:
         app: python-fastapi-postgresql
         app.kubernetes.io/name: python-fastapi-postgresql
+      annotations:
+        gke-gcsfuse/volumes: "true"
     spec:
       serviceAccountName: python-fastapi-postgresql-sa
       nodeSelector:
