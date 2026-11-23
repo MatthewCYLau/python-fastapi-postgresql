@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from api.auth.views import get_current_user
 from api.config.database import get_session
-from api.config.exception import BadRequestException
+from api.config.exception import BadRequestException, TooManyRequestsException
 from api.config.logging import get_logger
 from api.metrics.metrics import NEW_ORDERS_TOTAL
 from api.order.repository import OrderRepository
@@ -18,11 +18,13 @@ from api.order.schemas import (
 from api.order.service import OrderService
 from api.user.schemas import UserResponse
 from api.utils.date_util import validate_date_string
+from api.utils.rate_limiter import RateLimiter
 
 logger = get_logger(__name__)
 
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
+rate_limiter = RateLimiter()
 
 
 def get_order_service(session: Session = Depends(get_session)) -> OrderService:
@@ -43,7 +45,11 @@ def create_order(
     )
 
     NEW_ORDERS_TOTAL.labels(quantity=order_data.quantity, status="new").inc()
-    return OrderService(session).create_order(order_data, user_id)
+
+    if rate_limiter.is_allowed(user_id):
+        return OrderService(session).create_order(order_data, user_id)
+    else:
+        raise TooManyRequestsException()
 
 
 @router.get("/", response_model=list[OrderResponse])
