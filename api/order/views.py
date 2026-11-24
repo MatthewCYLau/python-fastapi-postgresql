@@ -1,10 +1,11 @@
+from functools import lru_cache
 from typing import Annotated
 import uuid
 from fastapi import APIRouter, Depends, status
 from sqlalchemy.orm import Session
 
 from api.auth.views import get_current_user
-from api.config.database import get_session
+from api.config.database import SessionLocal, get_session
 from api.config.exception import BadRequestException, TooManyRequestsException
 from api.config.logging import get_logger
 from api.metrics.metrics import NEW_ORDERS_TOTAL
@@ -126,30 +127,24 @@ def get_orders_count_by_product_id(
         raise
 
 
-@router.get("/{order_id}", response_model=OrderResponse)
-def get_order_by_id(
-    order_id: uuid.UUID,
-    session=Depends(get_session),
-) -> OrderResponse:
-    logger.info(f"Getting order {order_id}")
-    try:
-        order = OrderService(session).get_order_by_id(order_id)
-        logger.info(f"Retrieved order {order_id}")
-        return order
-    except Exception as e:
-        logger.error(f"Failed to fetch order {order_id}: {e}")
-        raise
+@lru_cache(maxsize=10)
+def _fetch_order_cached(order_id: uuid.UUID) -> OrderResponse:
+    with SessionLocal() as session:
+        return OrderService(session).get_order_by_id(order_id)
 
 
 @router.get("/{order_id}", response_model=OrderResponse)
 def get_order_by_id(
     order_id: uuid.UUID,
-    session=Depends(get_session),
 ) -> OrderResponse:
     logger.info(f"Getting order {order_id}")
     try:
-        order = OrderService(session).get_order_by_id(order_id)
+        order = _fetch_order_cached(order_id)
         logger.info(f"Retrieved order {order_id}")
+        info = _fetch_order_cached.cache_info()
+        logger.info(
+            f"Order cache stats: hits={info.hits}, misses={info.misses}, size={info.currsize}"
+        )
         return order
     except Exception as e:
         logger.error(f"Failed to fetch order {order_id}: {e}")
