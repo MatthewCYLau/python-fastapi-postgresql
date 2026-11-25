@@ -22,4 +22,5 @@ class User(Base):
     date_of_birth = Column(Date, nullable=False)
     email_verified = Column(Boolean, unique=False, default=False)
     hashed_password = Column(String, nullable=False)
+    role = Column(String, nullable=False)
     orders: Mapped[List["Order"]] = relationship()

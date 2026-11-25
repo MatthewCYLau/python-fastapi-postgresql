@@ -1,6 +1,13 @@
+from enum import StrEnum
+
 from pydantic import BaseModel, ConfigDict, EmailStr
 from datetime import datetime
 import uuid
+
+
+class UserRole(StrEnum):
+    BASIC = "basic"
+    ADMIN = "admin"
 
 
 class UserBase(BaseModel):
@@ -12,11 +19,13 @@ class UserCreate(UserBase):
 
     password: str
     dateOfBirth: str
+    role: UserRole = UserRole.BASIC
 
 
 class UserUpdate(BaseModel):
     password: str
     dateOfBirth: str
+    role: UserRole
 
 
 class UserResponse(UserBase):
@@ -26,6 +35,7 @@ class UserResponse(UserBase):
     id: uuid.UUID
     created_at: datetime
     date_of_birth: datetime
+    role: UserRole
     email_verified: bool
 
 

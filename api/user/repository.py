@@ -25,6 +25,7 @@ class UserRepository:
             email=user_data.email,
             hashed_password=get_password_hash(user_data.password),
             date_of_birth=datetime.strptime(user_data.dateOfBirth, "%Y-%m-%d").date(),
+            role=user_data.role,
         )
         self.session.add(user)
         self.session.commit()
@@ -74,6 +75,7 @@ class UserRepository:
                 {
                     "date_of_birth": user_data.dateOfBirth,
                     "hashed_password": get_password_hash(user_data.password),
+                    "role": user_data.role,
                 }
             )
         )
