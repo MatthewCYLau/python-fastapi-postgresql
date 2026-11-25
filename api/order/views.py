@@ -2,10 +2,11 @@ from functools import lru_cache
 from typing import Annotated
 import uuid
 from fastapi import APIRouter, Depends, status
+import pandas as pd
 from sqlalchemy.orm import Session
 
 from api.auth.views import get_current_user
-from api.config.database import SessionLocal, get_session
+from api.config.database import SessionLocal, get_database_engine, get_session
 from api.config.exception import BadRequestException, TooManyRequestsException
 from api.config.logging import get_logger
 from api.metrics.metrics import NEW_ORDERS_TOTAL
@@ -26,6 +27,7 @@ logger = get_logger(__name__)
 
 router = APIRouter(prefix="/api/v1/orders", tags=["orders"])
 rate_limiter = RateLimiter()
+query = "SELECT * FROM orders;"
 
 
 def get_order_service(session: Session = Depends(get_session)) -> OrderService:
@@ -82,6 +84,30 @@ async def get_all_orders(
         return orders
     except Exception as e:
         logger.error(f"Failed to fetch orders: {str(e)}")
+        raise
+
+
+@router.get("/dataframe")
+async def get_all_orders_dataframe():
+    """Get all orders dataframe."""
+    logger.debug("Fetching all orders dataframe")
+
+    try:
+        engine = get_database_engine()
+        with engine.connect() as conn:
+            df = pd.read_sql(query, conn.connection)
+
+        df["created_at"] = pd.to_datetime(df["created_at"])
+        df_groupby = (
+            df.groupby(df["created_at"].dt.date)["total_cost"].max().reset_index()
+        )
+
+        return {
+            "status": "success",
+            "data": {"df": df.to_dict(orient="records"), "df_groupby": df_groupby},
+        }
+    except Exception as e:
+        logger.error(f"Failed to fetch orders dataframe: {str(e)}")
         raise
 
 
