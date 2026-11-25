@@ -18,6 +18,7 @@ def mocked_repository(mocker):
         "password": "testpassword",
         "date_of_birth": date(1990, 12, 4),
         "email_verified": False,
+        "role": "basic",
     }
     mocker.patch(
         "api.user.repository.UserRepository.get_all",
