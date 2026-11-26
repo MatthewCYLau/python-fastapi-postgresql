@@ -98,13 +98,22 @@ async def get_all_orders_dataframe():
             df = pd.read_sql(query, conn.connection)
 
         df["created_at"] = pd.to_datetime(df["created_at"])
-        df_groupby = (
+        df_groupby_max = (
             df.groupby(df["created_at"].dt.date)["total_cost"].max().reset_index()
+        )
+
+        df = df.set_index("created_at")
+        df_groupby_max_mean = (
+            df.groupby(df.index.date)["total_cost"].mean().reset_index()
         )
 
         return {
             "status": "success",
-            "data": {"df": df.to_dict(orient="records"), "df_groupby": df_groupby},
+            "data": {
+                "df": df.to_dict(orient="records"),
+                "df_groupby_max": df_groupby_max,
+                "df_groupby_max_mean": df_groupby_max_mean,
+            },
         }
     except Exception as e:
         logger.error(f"Failed to fetch orders dataframe: {str(e)}")
